@@ -1,0 +1,4 @@
+export enum CACHE_NAMESPACE {
+  ATKNS = 'ACCESS_TOKENS',
+  RTKNS = 'REFRESH_TOKENS',
+}
