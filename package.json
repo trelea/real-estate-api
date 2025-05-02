@@ -9,16 +9,22 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "NODE_ENV=dev && nest start --watch",
+    "start:dev": "export NODE_ENV=dev && nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "NODE_ENV=prod && node dist/main",
+    "start:prod": "export NODE_ENV=prod && node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "create:admin": "npx ts-node ./src/scripts/admin.ts"
+    "create:admin": "export NODE_ENV=prod && ts-node ./src/scripts/admin.ts",
+
+    "typeorm": "npx ts-node ./node_modules/.bin/typeorm",
+    "migration:run": "npm run build && npm run typeorm migration:run -- -d ./src/database/config.ts",
+    "migration:generate": "npm run typeorm -- -d ./src/database/config.ts migration:generate ./src/database/migrations/$npm_config_name",
+    "migration:create": "npm run typeorm -- migration:create ./src/database/migrations/$npm_config_name",
+    "migration:revert": "npm run typeorm -- -d ./src/database/config.ts migration:revert"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.797.0",
@@ -37,6 +43,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",
     "keyv": "^5.3.3",
     "passport": "^0.7.0",
