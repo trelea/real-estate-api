@@ -1,11 +1,9 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users';
-import { SignupDto } from './dtos';
 import { CryptoService } from 'src/crypto';
 import { Request, Response } from 'express';
 import { User } from 'src/database/entities';
@@ -24,15 +22,15 @@ export class AuthService {
     private readonly redisService: RedisService,
   ) {}
 
-  async signup(user: SignupDto, thumbnail?: Express.Multer.File) {
-    const _user = await this.usersService.findUserBy({ email: user.email });
-    if (_user) throw new ConflictException('Resources Already Exists');
-    try {
-      return await this.usersService.createUser(user, thumbnail);
-    } catch (err) {
-      throw new InternalServerErrorException(err.message);
-    }
-  }
+  // async signup(user: SignupDto, thumbnail?: Express.Multer.File) {
+  //   const _user = await this.usersService.findUserBy({ email: user.email });
+  //   if (_user) throw new ConflictException('Resources Already Exists');
+  //   try {
+  //     return await this.usersService.createUser(user, thumbnail);
+  //   } catch (err) {
+  //     throw new InternalServerErrorException(err.message);
+  //   }
+  // }
 
   async signin(req: Request, res: Response) {
     try {
@@ -198,6 +196,14 @@ export class AuthService {
 
     const { password: _password, ...user } = _user;
     return user;
+  }
+
+  async status(req: Request): Promise<{ user: User } | null> {
+    // await new Promise((res) => setTimeout(res, 1000));
+    return await this.redisService.get<{ user: User }>({
+      ns: CACHE_NAMESPACE.ATKNS,
+      key: req.user?.id as string,
+    });
   }
 
   /**

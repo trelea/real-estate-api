@@ -23,5 +23,5 @@ export class User extends GlobalEntity {
    */
   @OneToOne(() => Profile, (profile) => profile.user)
   @JoinColumn()
-  profile: unknown;
+  profile: Profile;
 }
