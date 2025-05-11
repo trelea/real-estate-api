@@ -8,9 +8,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from 'src/redis';
 import { JwtAccessStrategy, JwtRefreshStrategy } from './strategies';
 import { PassportModule } from '@nestjs/passport';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConfig } from 'src/config';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -22,10 +21,6 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   controllers: [AuthController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
     AuthService,
     CryptoService,
     LocalStrategy,

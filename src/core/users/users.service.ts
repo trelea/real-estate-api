@@ -10,6 +10,7 @@ import {
 import { SignupDto } from '../auth/dtos';
 import { CryptoService } from 'src/crypto';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
+import { UpdateUserDto } from 'src/modules/users/dtos';
 
 @Injectable()
 export class UsersService {
@@ -68,6 +69,34 @@ export class UsersService {
       });
 
       await transaction.save(profile);
+    });
+  }
+
+  async updateUser(
+    { user_id, profile_id }: { user_id: string; profile_id: string },
+    _user?: UpdateUserDto,
+    _thumbnail?: Express.Multer.File,
+  ) {
+    return await this.entityManager.transaction(async (transaction) => {
+      if (!_user) return;
+
+      const { role, ..._profile } = _user;
+
+      await transaction.update(User, { id: user_id }, role ? { role } : {});
+
+      /**
+       * Try to upload file to S3
+       */
+      let thumbnail: string | undefined = undefined;
+      if (_thumbnail)
+        thumbnail = (await this.awsS3Service.uploadFile(_thumbnail, user_id))
+          .url;
+
+      await transaction.update(
+        Profile,
+        { id: profile_id },
+        _thumbnail ? { thumbnail, ..._profile } : { ..._profile },
+      );
     });
   }
 }
