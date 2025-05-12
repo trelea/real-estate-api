@@ -46,11 +46,12 @@ export class UsersController {
    * find all
    */
   @Get()
+  @SetRoles([UserRole.USER, UserRole.ADMIN])
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,
   ) {
-    return this.usersService.findAll(page, limit);
+    return await this.usersService.findAll(page, limit);
   }
 
   /**
