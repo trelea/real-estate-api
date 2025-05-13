@@ -67,7 +67,13 @@ export class UsersService {
    * delete
    */
   async delete(id: string) {
-    return await this.usersRepository.delete({ id });
+    try {
+      return await this.usersRepository.remove(
+        await this.usersRepository.findBy({ id }),
+      );
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
   }
 
   /**
