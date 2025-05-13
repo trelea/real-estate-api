@@ -20,6 +20,6 @@ export class Profile extends GlobalEntity {
   /**
    * relation to user 1 <-> 1
    */
-  @OneToOne(() => User, (user) => user.profile)
+  @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })
   user: User;
 }
