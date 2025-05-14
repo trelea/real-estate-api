@@ -80,9 +80,13 @@ export class UsersService {
     return await this.entityManager.transaction(async (transaction) => {
       if (!_user) return;
 
-      const { role, ..._profile } = _user;
+      const { role, email, ..._profile } = _user;
 
-      await transaction.update(User, { id: user_id }, role ? { role } : {});
+      await transaction.update(
+        User,
+        { id: user_id },
+        role || email ? { role, email } : {},
+      );
 
       /**
        * Try to upload file to S3

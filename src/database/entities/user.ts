@@ -9,7 +9,7 @@ export enum UserRole {
 
 @Entity()
 export class User extends GlobalEntity {
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
 
   @Column({ type: 'varchar', nullable: false })
