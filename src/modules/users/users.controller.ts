@@ -50,8 +50,9 @@ export class UsersController {
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,
+    @Query('search') search?: string,
   ) {
-    return await this.usersService.findAll(page, limit);
+    return await this.usersService.findAll(page, limit, search);
   }
 
   /**
@@ -74,9 +75,10 @@ export class UsersController {
    * update
    */
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('thumbnail'))
   async update(
     @Param('id') id: string,
-    @Body() user?: UpdateUserDto,
+    @Body() user: UpdateUserDto,
     @UploadedFile(ThumbnailValidationPipe) thumbnail?: Express.Multer.File,
   ) {
     return this.usersService.update(id, user, thumbnail);
