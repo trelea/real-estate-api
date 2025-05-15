@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database';
 import { CryptoService } from './crypto/crypto.service';
 import { UsersModule } from './modules/users/users.module';
+import { BlogsModule } from './modules/blogs/blogs.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
+    BlogsModule,
   ],
   providers: [CryptoService],
 })

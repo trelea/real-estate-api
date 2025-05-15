@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Profile, User } from './entities';
+import { Blog, BlogContent, Profile, User } from './entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 config();
@@ -13,7 +13,7 @@ export const dataSourceOptions = {
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV !== 'prod',
   logging: process.env.NODE_ENV !== 'prod',
-  entities: [User, Profile],
+  entities: [User, Profile, Blog, BlogContent],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],
 } as TypeOrmModuleOptions;

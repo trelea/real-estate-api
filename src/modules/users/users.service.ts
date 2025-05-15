@@ -97,8 +97,6 @@ export class UsersService {
     const _user = await this.usersService.findUserBy({ id });
     if (!_user) throw new NotFoundException();
 
-    console.log('INTO UPDATE', thumbnail);
-
     try {
       return await this.usersService.updateUser(
         {
