@@ -157,4 +157,11 @@ export class BlogsService {
         );
     });
   }
+
+  /**
+   * remove thumb
+   */
+  async removeThumb(id: string) {
+    return await this.blogsRespository.update({ id }, { thumbnail: null });
+  }
 }
