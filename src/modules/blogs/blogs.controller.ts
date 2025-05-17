@@ -83,4 +83,12 @@ export class BlogsController {
   async delete(@Param('id') id: string) {
     return await this.blogService.delete(id);
   }
+
+  /**
+   * remove thumb
+   */
+  @Delete(':id/rm-thumb')
+  async removeThumb(@Param('id') id: string) {
+    return await this.blogService.removeThumb(id);
+  }
 }

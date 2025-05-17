@@ -10,7 +10,7 @@ export enum BlogStatus {
 @Entity()
 export class Blog extends GlobalEntity {
   @Column({ type: 'varchar', nullable: true })
-  thumbnail: string;
+  thumbnail: string | null;
 
   @Column({ type: 'enum', enum: BlogStatus, default: BlogStatus.PRIVATE })
   status: BlogStatus;
