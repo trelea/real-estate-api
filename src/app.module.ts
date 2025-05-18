@@ -5,6 +5,7 @@ import { DatabaseModule } from './database';
 import { CryptoService } from './crypto/crypto.service';
 import { UsersModule } from './modules/users/users.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
+import { ServicesModule } from './modules/services/services.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { BlogsModule } from './modules/blogs/blogs.module';
     AuthModule,
     UsersModule,
     BlogsModule,
+    ServicesModule,
   ],
   providers: [CryptoService],
 })

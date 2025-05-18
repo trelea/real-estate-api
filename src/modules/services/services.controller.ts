@@ -11,23 +11,23 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
+import { UserRole } from 'src/database/entities';
+import { Public, SetRoles } from 'src/shared/decorators';
+import { RolesGuard } from 'src/shared/guards';
+import { ServicesService } from './services.service';
 import {
   ParseIntPipeOptional,
   ThumbnailValidationPipe,
 } from 'src/shared/pipes';
-import { CreateBlogDto, UpdateBlogDto } from './dtos';
-import { Public, SetRoles } from 'src/shared/decorators';
-import { UserRole } from 'src/database/entities';
-import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
-import { RolesGuard } from 'src/shared/guards';
-import { BlogsService } from './blogs.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateServiceDto, UpdateServiceDto } from './dtos';
 
-@Controller('blogs')
+@Controller('services')
 @SetRoles([UserRole.ADMIN])
 @UseGuards(JwtAccessStrategyGuard, RolesGuard)
-export class BlogsController {
-  constructor(private readonly blogService: BlogsService) {}
+export class ServicesController {
+  constructor(private readonly servicesService: ServicesService) {}
   /**
    * find all
    */
@@ -38,7 +38,7 @@ export class BlogsController {
     @Query('limit', ParseIntPipeOptional) limit?: number,
     @Query('search') search?: string,
   ) {
-    return await this.blogService.findAll(page, limit, search);
+    return await this.servicesService.findAll(page, limit, search);
   }
 
   /**
@@ -47,10 +47,10 @@ export class BlogsController {
   @Post()
   @UseInterceptors(FileInterceptor('thumbnail'))
   async create(
-    @Body() blog: CreateBlogDto,
+    @Body() service: CreateServiceDto,
     @UploadedFile(ThumbnailValidationPipe) thumbnail?: Express.Multer.File,
   ) {
-    return await this.blogService.create(blog, thumbnail);
+    return await this.servicesService.create(service, thumbnail);
   }
 
   /**
@@ -59,7 +59,7 @@ export class BlogsController {
   @Public()
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return await this.blogService.findById(id);
+    return await this.servicesService.findById(id);
   }
 
   /**
@@ -69,10 +69,10 @@ export class BlogsController {
   @UseInterceptors(FileInterceptor('thumbnail'))
   async update(
     @Param('id') id: string,
-    @Body() blog: UpdateBlogDto,
+    @Body() service: UpdateServiceDto,
     @UploadedFile(ThumbnailValidationPipe) thumbnail?: Express.Multer.File,
   ) {
-    return await this.blogService.update(id, blog, thumbnail);
+    return await this.servicesService.update(id, service, thumbnail);
   }
 
   /**
@@ -80,7 +80,7 @@ export class BlogsController {
    */
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    return await this.blogService.delete(id);
+    return await this.servicesService.delete(id);
   }
 
   /**
@@ -88,6 +88,6 @@ export class BlogsController {
    */
   @Delete(':id/rm-thumb')
   async removeThumb(@Param('id') id: string) {
-    return await this.blogService.removeThumb(id);
+    return await this.servicesService.removeThumb(id);
   }
 }
