@@ -1,9 +1,9 @@
 import { Column, Entity, OneToOne } from 'typeorm';
-import { GlobalEntity } from './_';
+import { GlobalEntityUUID } from './_';
 import { Blog } from './blog';
 
 @Entity()
-export class BlogContent extends GlobalEntity {
+export class BlogContent extends GlobalEntityUUID {
   @Column({ type: 'varchar', nullable: false })
   title_ro: string;
 

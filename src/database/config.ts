@@ -2,6 +2,8 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
   Blog,
   BlogContent,
+  HousingCondition,
+  HousingStock,
   Profile,
   Service,
   ServiceContent,
@@ -20,7 +22,16 @@ export const dataSourceOptions = {
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV !== 'prod',
   logging: process.env.NODE_ENV !== 'prod',
-  entities: [User, Profile, Blog, BlogContent, Service, ServiceContent],
+  entities: [
+    User,
+    Profile,
+    Blog,
+    BlogContent,
+    Service,
+    ServiceContent,
+    HousingStock,
+    HousingCondition,
+  ],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],
 } as TypeOrmModuleOptions;

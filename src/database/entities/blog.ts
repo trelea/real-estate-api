@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { GlobalEntity } from './_';
+import { GlobalEntityUUID } from './_';
 import { BlogContent } from './blog-content';
 
 export enum BlogStatus {
@@ -8,7 +8,7 @@ export enum BlogStatus {
 }
 
 @Entity()
-export class Blog extends GlobalEntity {
+export class Blog extends GlobalEntityUUID {
   @Column({ type: 'varchar', nullable: true })
   thumbnail: string | null;
 
