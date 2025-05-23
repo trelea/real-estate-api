@@ -5,3 +5,6 @@ export * from './blog';
 export * from './blog-content';
 export * from './service';
 export * from './service-content';
+export * from './langs.interface';
+export * from './housing-condition';
+export * from './housing-stock';

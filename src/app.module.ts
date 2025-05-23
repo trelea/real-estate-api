@@ -6,6 +6,8 @@ import { CryptoService } from './crypto/crypto.service';
 import { UsersModule } from './modules/users/users.module';
 import { BlogsModule } from './modules/blogs/blogs.module';
 import { ServicesModule } from './modules/services/services.module';
+import { HousingStocksModule } from './modules/housing-stocks';
+import { HousingConditionsModule } from './modules/housing-conditions';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { ServicesModule } from './modules/services/services.module';
     UsersModule,
     BlogsModule,
     ServicesModule,
+    HousingStocksModule,
+    HousingConditionsModule,
   ],
   providers: [CryptoService],
 })

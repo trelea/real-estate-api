@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import { GlobalEntity } from './_';
+import { GlobalEntityUUID } from './_';
 import { Profile } from './profile';
 
 export enum UserRole {
@@ -8,7 +8,7 @@ export enum UserRole {
 }
 
 @Entity()
-export class User extends GlobalEntity {
+export class User extends GlobalEntityUUID {
   @Column({ type: 'varchar', nullable: false, unique: true })
   email: string;
 
