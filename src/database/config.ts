@@ -1,12 +1,19 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
+  ApartmentFeature,
   Blog,
   BlogContent,
+  CommercialDestination,
+  CommercialFeature,
+  CommercialPlacing,
+  HouseFeature,
   HousingCondition,
   HousingStock,
   Profile,
   Service,
   ServiceContent,
+  TerrainFeature,
+  TerrainUsability,
   User,
 } from './entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
@@ -31,6 +38,25 @@ export const dataSourceOptions = {
     ServiceContent,
     HousingStock,
     HousingCondition,
+    /**
+     * apartments
+     */
+    ApartmentFeature,
+    /**
+     * houses
+     */
+    HouseFeature,
+    /**
+     * commercials
+     */
+    CommercialFeature,
+    CommercialDestination,
+    CommercialPlacing,
+    /**
+     * terrains
+     */
+    TerrainFeature,
+    TerrainUsability,
   ],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],

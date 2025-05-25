@@ -5,6 +5,32 @@ export * from './blog';
 export * from './blog-content';
 export * from './service';
 export * from './service-content';
-export * from './langs.interface';
+/**
+ * default
+ */
 export * from './housing-condition';
 export * from './housing-stock';
+export * from './multilingual';
+
+/**
+ * apartments
+ */
+export * from './apartment-feature';
+
+/**
+ * houses
+ */
+export * from './house-feature';
+
+/**
+ * commercials
+ */
+export * from './commercial-feature';
+export * from './commercial-placing';
+export * from './commercial-destination';
+
+/**
+ * terrains
+ */
+export * from './terrain-feature';
+export * from './terrain-usability';

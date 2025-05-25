@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateHousingConditionDto {
+export class CreateMultilingualDto {
   @IsNotEmpty()
   @IsString()
   ro: string;

@@ -1,6 +1,6 @@
 import { Entity, Unique } from 'typeorm';
-import { GlobalEntityWithLanguages } from './__';
+import { MultilingualEntity } from './multilingual';
 
 @Entity()
 @Unique(['ro', 'ru', 'en'])
-export class HousingCondition extends GlobalEntityWithLanguages {}
+export class HousingCondition extends MultilingualEntity {}

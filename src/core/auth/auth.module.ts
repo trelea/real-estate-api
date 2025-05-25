@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { UsersModule } from '../users';
-import { CryptoService } from 'src/crypto';
+import { CryptoService } from 'src/services/crypto';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from 'src/redis';
 import { JwtAccessStrategy, JwtRefreshStrategy } from './strategies';

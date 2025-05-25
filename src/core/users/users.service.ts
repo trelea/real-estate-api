@@ -8,7 +8,7 @@ import {
   Repository,
 } from 'typeorm';
 import { SignupDto } from '../auth/dtos';
-import { CryptoService } from 'src/crypto';
+import { CryptoService } from 'src/services/crypto';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
 import { UpdateUserDto } from 'src/modules/users/dtos';
 
