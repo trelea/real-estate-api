@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 
 export class ThumbnailValidationPipe implements PipeTransform {
-  constructor(private readonly size: number = 50 * 1024) {}
+  constructor(private readonly size: number = 1024 * 1024) {}
 
   transform(thumbnail: Express.Multer.File, metadata: ArgumentMetadata) {
     if (!thumbnail) return;
     if (thumbnail.size > this.size)
-      throw new BadRequestException('Max File Size 50KB');
+      throw new BadRequestException('Max File Size 1MB');
 
     if (
       !['image/jpg', 'image/jpeg', 'image/png', 'image/webp'].includes(

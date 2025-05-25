@@ -16,7 +16,10 @@ import { SetRoles } from 'src/shared/decorators';
 import { RolesGuard } from 'src/shared/guards';
 import { HousingStocksService } from './housing-stocks.service';
 import { ParseIntPipeOptional } from 'src/shared/pipes';
-import { CreateHousingStockDto, UpdateHousingStockDto } from './dtos';
+import {
+  CreateMultilingualDto,
+  UpdateMultilingualDto,
+} from 'src/services/multilingual/dtos';
 
 @Controller('housing-stocks')
 @SetRoles([UserRole.ADMIN])
@@ -48,7 +51,7 @@ export class HousingStocksController {
    * create stock
    */
   @Post()
-  async create(@Body() condition: CreateHousingStockDto) {
+  async create(@Body() condition: CreateMultilingualDto) {
     return await this.housingStocksService.create(condition);
   }
 
@@ -58,7 +61,7 @@ export class HousingStocksController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() condition: UpdateHousingStockDto,
+    @Body() condition: UpdateMultilingualDto,
   ) {
     return await this.housingStocksService.update(id, condition);
   }

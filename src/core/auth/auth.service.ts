@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users';
-import { CryptoService } from 'src/crypto';
+import { CryptoService } from 'src/services/crypto';
 import { Request, Response } from 'express';
 import { User } from 'src/database/entities';
 import { JwtService } from '@nestjs/jwt';
