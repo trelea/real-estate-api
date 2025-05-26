@@ -18,6 +18,18 @@ export class Profile extends GlobalEntityUUID {
   thumbnail: string;
 
   /**
+   * socials contacts
+   */
+  @Column({ type: 'varchar', nullable: true })
+  telegram: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  whatsapp: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  viber: string;
+
+  /**
    * relation to user 1 <-> 1
    */
   @OneToOne(() => User, (user) => user.profile, { onDelete: 'CASCADE' })

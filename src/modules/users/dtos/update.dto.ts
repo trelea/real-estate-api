@@ -1,4 +1,11 @@
-import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { UserRole } from 'src/database/entities';
 import { IsMdPhoneNumber } from 'src/shared/decorators';
 
@@ -22,4 +29,19 @@ export class UpdateUserDto {
   @IsOptional()
   @IsMdPhoneNumber()
   contact?: string;
+
+  /**
+   * socials contacts
+   */
+  @IsUrl()
+  @IsOptional()
+  telegram?: string;
+
+  @IsPhoneNumber()
+  @IsOptional()
+  whatsapp?: string;
+
+  @IsPhoneNumber()
+  @IsOptional()
+  viber?: string;
 }
