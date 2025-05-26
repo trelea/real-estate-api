@@ -22,6 +22,15 @@ export class ServiceContent extends GlobalEntityUUID {
   @Column({ type: 'text', nullable: false })
   desc_en: string;
 
+  @Column({ type: 'text', nullable: false })
+  content_ro: string;
+
+  @Column({ type: 'text', nullable: false })
+  content_ru: string;
+
+  @Column({ type: 'text', nullable: false })
+  content_en: string;
+
   @OneToOne(() => Service, (service) => service.content, {
     onDelete: 'SET NULL',
   })

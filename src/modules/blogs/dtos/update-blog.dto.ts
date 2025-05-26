@@ -27,6 +27,18 @@ export class UpdateBlogDto {
   desc_ru?: string;
 
   @IsOptional()
+  @IsString()
+  content_en?: string;
+
+  @IsOptional()
+  @IsString()
+  content_ro?: string;
+
+  @IsOptional()
+  @IsString()
+  content_ru?: string;
+
+  @IsOptional()
   @IsEnum(BlogStatus)
   status?: BlogStatus;
 }

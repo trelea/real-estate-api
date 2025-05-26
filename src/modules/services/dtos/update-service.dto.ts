@@ -27,6 +27,18 @@ export class UpdateServiceDto {
   desc_ru?: string;
 
   @IsOptional()
+  @IsString()
+  content_en?: string;
+
+  @IsOptional()
+  @IsString()
+  content_ro?: string;
+
+  @IsOptional()
+  @IsString()
+  content_ru?: string;
+
+  @IsOptional()
   @IsEnum(ServiceStatus)
   status?: ServiceStatus;
 }

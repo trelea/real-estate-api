@@ -26,6 +26,18 @@ export class CreateServiceDto {
   @IsNotEmpty()
   desc_ro: string;
 
+  @IsString()
+  @IsNotEmpty()
+  content_ru: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content_en: string;
+
+  @IsString()
+  @IsNotEmpty()
+  content_ro: string;
+
   @IsOptional()
   @IsEnum(ServiceStatus)
   status?: ServiceStatus;
