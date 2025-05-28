@@ -18,6 +18,9 @@ import { CommercialsModule } from './modules/commercials/commercials';
 import { TerrainsUsabilitiesModule } from './modules/terrains/terrains-usabilities';
 import { TerrainsFeaturesModule } from './modules/terrains/terrains-features';
 import { TerrainsModule } from './modules/terrains/terrains';
+import { TermsAndConditionsModule } from './modules/terms-and-conditions';
+import { AboutUsModule } from './modules/about-us';
+import { PrivacyPolicyModule } from './modules/privacy-policy';
 
 @Module({
   imports: [
@@ -52,6 +55,12 @@ import { TerrainsModule } from './modules/terrains/terrains';
     TerrainsUsabilitiesModule,
     TerrainsFeaturesModule,
     TerrainsModule,
+    /**
+     * about us, policy, terms and conditions
+     */
+    TermsAndConditionsModule,
+    AboutUsModule,
+    PrivacyPolicyModule,
   ],
 })
 export class AppModule {}

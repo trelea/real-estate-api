@@ -22,6 +22,7 @@ import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
 import { RolesGuard } from 'src/shared/guards';
 import { BlogsService } from './blogs.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { BlogsStatusInterceptor } from 'src/shared/interceptors/blogs-status.interceptor';
 
 @Controller('blogs')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class BlogsController {
    */
   @Public()
   @Get()
+  @UseInterceptors(BlogsStatusInterceptor)
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

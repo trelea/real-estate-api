@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
+  AboutUs,
   ApartmentFeature,
   Blog,
   BlogContent,
@@ -9,9 +10,11 @@ import {
   HouseFeature,
   HousingCondition,
   HousingStock,
+  PrivacyPolicy,
   Profile,
   Service,
   ServiceContent,
+  TermsAnsConditions,
   TerrainFeature,
   TerrainUsability,
   User,
@@ -57,6 +60,12 @@ export const dataSourceOptions = {
      */
     TerrainFeature,
     TerrainUsability,
+    /**
+     * aboutus, terms and conditions, policy
+     */
+    AboutUs,
+    TermsAnsConditions,
+    PrivacyPolicy,
   ],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],
