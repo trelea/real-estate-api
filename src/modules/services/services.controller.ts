@@ -22,6 +22,7 @@ import {
 } from 'src/shared/pipes';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateServiceDto, UpdateServiceDto } from './dtos';
+import { ServicesStatusInterceptor } from 'src/shared/interceptors';
 
 @Controller('services')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class ServicesController {
    */
   @Public()
   @Get()
+  @UseInterceptors(ServicesStatusInterceptor)
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 
 export class ThumbnailValidationPipe implements PipeTransform {
-  constructor(private readonly size: number = 1024 * 1024) {}
+  constructor(private readonly size: number = 1024 * 1024 * 5) {}
 
   transform(thumbnail: Express.Multer.File, metadata: ArgumentMetadata) {
     if (!thumbnail) return;

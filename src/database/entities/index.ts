@@ -34,3 +34,10 @@ export * from './commercial-destination';
  */
 export * from './terrain-feature';
 export * from './terrain-usability';
+
+/**
+ * other stuff
+ */
+export * from './about-us';
+export * from './privacy-policy';
+export * from './terms-and-conditions';
