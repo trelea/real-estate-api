@@ -16,6 +16,7 @@ export * from './multilingual';
  * apartments
  */
 export * from './apartment-feature';
+export * from './apartment';
 
 /**
  * houses
@@ -41,3 +42,12 @@ export * from './terrain-usability';
 export * from './about-us';
 export * from './privacy-policy';
 export * from './terms-and-conditions';
+/**
+ * media
+ */
+export * from './media';
+/**
+ * locations
+ */
+export * from './location-category';
+export * from './location-subcategory';

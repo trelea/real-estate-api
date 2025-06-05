@@ -1,6 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
   AboutUs,
+  Apartment,
   ApartmentFeature,
   Blog,
   BlogContent,
@@ -10,6 +11,9 @@ import {
   HouseFeature,
   HousingCondition,
   HousingStock,
+  LocationCategory,
+  LocationSubcategory,
+  Media,
   PrivacyPolicy,
   Profile,
   Service,
@@ -45,6 +49,7 @@ export const dataSourceOptions = {
      * apartments
      */
     ApartmentFeature,
+    Apartment,
     /**
      * houses
      */
@@ -66,6 +71,15 @@ export const dataSourceOptions = {
     AboutUs,
     TermsAnsConditions,
     PrivacyPolicy,
+    /**
+     * media
+     */
+    Media,
+    /**
+     * locations
+     */
+    LocationCategory,
+    LocationSubcategory,
   ],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],

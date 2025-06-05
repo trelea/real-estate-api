@@ -1,5 +1,5 @@
 import { createInterface } from 'node:readline/promises';
-import { Profile, User, UserRole } from '../database/entities';
+import { Profile, User, UserPriority, UserRole } from '../database/entities';
 import { scryptSync } from 'node:crypto';
 import { dataSource } from '../database';
 
@@ -22,9 +22,12 @@ async function main() {
         process.env.CRYPTO_SALT as string,
         parseInt(process.env.CRYPTO_KLEN as string),
       ).toString('hex');
-      const user = dataSource
-        .getRepository(User)
-        .create({ email, password, role: UserRole.ADMIN });
+      const user = dataSource.getRepository(User).create({
+        email,
+        password,
+        role: UserRole.ADMIN,
+        priority: UserPriority.HIGH,
+      });
       const profile = dataSource.getRepository(Profile).create({
         name,
         surname,
