@@ -3,11 +3,12 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { UsersService as _UsersService } from '../../core/users';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/database/entities';
+import { User, UserPriority } from 'src/database/entities';
 import { Like, Repository } from 'typeorm';
 
 @Injectable()
@@ -78,9 +79,11 @@ export class UsersService {
    */
   async delete(id: string) {
     try {
-      return await this.usersRepository.remove(
-        await this.usersRepository.findBy({ id }),
-      );
+      const user = await this.usersService.findUserBy({ id });
+      if (user?.priority === UserPriority.HIGH)
+        throw new UnauthorizedException();
+
+      return await this.usersRepository.remove(user as User);
     } catch (err) {
       throw new InternalServerErrorException(err.message);
     }

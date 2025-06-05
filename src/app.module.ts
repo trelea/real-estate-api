@@ -21,6 +21,7 @@ import { TerrainsModule } from './modules/terrains/terrains';
 import { TermsAndConditionsModule } from './modules/terms-and-conditions';
 import { AboutUsModule } from './modules/about-us';
 import { PrivacyPolicyModule } from './modules/privacy-policy';
+import { LocationsModule } from './modules/locations';
 
 @Module({
   imports: [
@@ -61,6 +62,10 @@ import { PrivacyPolicyModule } from './modules/privacy-policy';
     TermsAndConditionsModule,
     AboutUsModule,
     PrivacyPolicyModule,
+    /**
+     * locations
+     */
+    LocationsModule,
   ],
 })
 export class AppModule {}
