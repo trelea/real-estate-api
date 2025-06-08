@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { GlobalEntityUUID } from './_';
 import { Profile } from './profile';
 import { Apartment } from './apartment';
+import { UserCarousel } from './user-carousel';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -44,4 +45,10 @@ export class User extends GlobalEntityUUID {
    */
   @OneToMany(() => Apartment, (apartment) => apartment.user)
   apartments: Apartment[];
+
+  /**
+   * carousel
+   */
+  @OneToOne(() => UserCarousel, (carousel) => carousel.user)
+  carousel?: UserCarousel;
 }

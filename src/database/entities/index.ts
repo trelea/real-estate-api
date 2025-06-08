@@ -5,6 +5,7 @@ export * from './blog';
 export * from './blog-content';
 export * from './service';
 export * from './service-content';
+export * from './service-landing';
 /**
  * default
  */
@@ -51,3 +52,7 @@ export * from './media';
  */
 export * from './location-category';
 export * from './location-subcategory';
+/**
+ * carousel
+ */
+export * from './user-carousel';

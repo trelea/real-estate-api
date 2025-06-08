@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { GlobalEntityUUID } from './_';
 import { ServiceContent } from './service-content';
+import { ServiceLanding } from './service-landing';
 
 export enum ServiceStatus {
   PUBLIC = 'PUBLIC',
@@ -23,4 +24,7 @@ export class Service extends GlobalEntityUUID {
   })
   @JoinColumn()
   content: ServiceContent;
+
+  @OneToOne(() => ServiceLanding, (landing) => landing.service)
+  landing?: ServiceLanding;
 }

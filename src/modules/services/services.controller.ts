@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -21,7 +22,11 @@ import {
   ThumbnailValidationPipe,
 } from 'src/shared/pipes';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateServiceDto, UpdateServiceDto } from './dtos';
+import {
+  CreateServiceDto,
+  PatchServiceLandingDto,
+  UpdateServiceDto,
+} from './dtos';
 import { ServicesStatusInterceptor } from 'src/shared/interceptors';
 
 @Controller('services')
@@ -41,6 +46,25 @@ export class ServicesController {
     @Query('search') search?: string,
   ) {
     return await this.servicesService.findAll(page, limit, search);
+  }
+
+  @Public()
+  @Get('landing')
+  async findAllOnLanding() {
+    return await this.servicesService.findAllOnLanding();
+  }
+
+  @Patch('landing/:position')
+  async patchServiceLanding(
+    @Param('position', ParseIntPipe) position: number,
+    @Body() service: PatchServiceLandingDto,
+  ) {
+    return await this.servicesService.patchServiceLanding(position, service);
+  }
+
+  @Delete('landing/:id')
+  async removeFromLanding(@Param('id', ParseIntPipe) id: number) {
+    return await this.servicesService.removeFromLanding(id);
   }
 
   /**

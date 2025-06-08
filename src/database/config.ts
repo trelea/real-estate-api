@@ -22,9 +22,11 @@ import {
   TerrainFeature,
   TerrainUsability,
   User,
+  UserCarousel,
 } from './entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
+import { ServiceLanding } from './entities/service-landing';
 config();
 
 export const dataSourceOptions = {
@@ -43,6 +45,7 @@ export const dataSourceOptions = {
     BlogContent,
     Service,
     ServiceContent,
+    ServiceLanding,
     HousingStock,
     HousingCondition,
     /**
@@ -80,6 +83,10 @@ export const dataSourceOptions = {
      */
     LocationCategory,
     LocationSubcategory,
+    /**
+     * users carousel
+     */
+    UserCarousel,
   ],
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   subscribers: [],
