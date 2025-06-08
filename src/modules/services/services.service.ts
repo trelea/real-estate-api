@@ -1,13 +1,30 @@
 import {
+  BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Service, ServiceContent } from 'src/database/entities';
-import { EntityManager, FindOptionsWhere, Like, Repository } from 'typeorm';
+import {
+  Service,
+  ServiceContent,
+  ServiceLanding,
+  ServiceStatus,
+} from 'src/database/entities';
+import {
+  DeepPartial,
+  EntityManager,
+  FindOptionsWhere,
+  Like,
+  Repository,
+} from 'typeorm';
 import { AwsS3Service } from '../aws-s3/aws-s3.service';
-import { CreateServiceDto, UpdateServiceDto } from './dtos';
+import {
+  CreateServiceDto,
+  PatchServiceLandingDto,
+  UpdateServiceDto,
+} from './dtos';
 
 @Injectable()
 export class ServicesService {
@@ -16,6 +33,8 @@ export class ServicesService {
     private readonly servicesRespository: Repository<Service>,
     @InjectRepository(ServiceContent)
     private readonly servicesContentRepository: Repository<ServiceContent>,
+    @InjectRepository(ServiceLanding)
+    private readonly servicesLandingRepository: Repository<ServiceLanding>,
     private readonly awsS3Service: AwsS3Service,
     private readonly entityManager: EntityManager,
   ) {}
@@ -78,7 +97,7 @@ export class ServicesService {
   }
 
   /**
-   * delete blog
+   * delete service
    */
   async delete(id: string) {
     try {
@@ -91,7 +110,7 @@ export class ServicesService {
   }
 
   /**
-   * create blog
+   * create service
    */
   async create(service: CreateServiceDto, thumbnail?: Express.Multer.File) {
     return this.entityManager.transaction(async (transaction) => {
@@ -121,7 +140,7 @@ export class ServicesService {
   }
 
   /**
-   * update blog
+   * update service
    */
   async update(
     id: string,
@@ -166,5 +185,57 @@ export class ServicesService {
    */
   async removeThumb(id: string) {
     return await this.servicesRespository.update({ id }, { thumbnail: null });
+  }
+
+  /**
+   * landing services utils
+   */
+
+  async findAllOnLanding() {
+    return await this.servicesLandingRepository.find({
+      take: 4,
+      relations: { service: { content: true } },
+      order: { position: 'ASC' },
+    });
+    // this.servicesLandingRepository.clear();
+  }
+
+  async patchServiceLanding(position: number, service: PatchServiceLandingDto) {
+    if (typeof position !== 'number' || position < 1 || position > 4)
+      throw new BadRequestException();
+
+    const _service = await this.findById(service.service);
+    if (!_service) throw new NotFoundException();
+
+    if (_service.status !== ServiceStatus.PUBLIC)
+      throw new ForbiddenException(
+        'Service is not public and cannot be used for this operation.',
+      );
+
+    const serviceLandingExists = await this.servicesLandingRepository.findOneBy(
+      {
+        position,
+      },
+    );
+
+    try {
+      if (!serviceLandingExists) {
+        return await this.servicesLandingRepository.save(
+          this.servicesLandingRepository.create({
+            position,
+            service: _service,
+          }),
+        );
+      }
+
+      serviceLandingExists.service = _service;
+      return await this.servicesLandingRepository.save(serviceLandingExists);
+    } catch (err) {
+      throw new InternalServerErrorException(err.message);
+    }
+  }
+
+  async removeFromLanding(id: number) {
+    return await this.servicesLandingRepository.delete(id);
   }
 }

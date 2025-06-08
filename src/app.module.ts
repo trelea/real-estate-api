@@ -22,6 +22,7 @@ import { TermsAndConditionsModule } from './modules/terms-and-conditions';
 import { AboutUsModule } from './modules/about-us';
 import { PrivacyPolicyModule } from './modules/privacy-policy';
 import { LocationsModule } from './modules/locations';
+import { UsersCarouselModule } from './modules/users-carousel';
 
 @Module({
   imports: [
@@ -66,6 +67,10 @@ import { LocationsModule } from './modules/locations';
      * locations
      */
     LocationsModule,
+    /**
+     * users carousel
+     */
+    UsersCarouselModule,
   ],
 })
 export class AppModule {}
