@@ -12,26 +12,29 @@ import { GlobalEntityIncrement } from './_';
 import { User } from './user';
 import { HousingStock } from './housing-stock';
 import { HousingCondition } from './housing-condition';
-import { ApartmentFeature } from './apartment-feature';
+import { HouseFeature } from './house-feature';
 import { Media } from './media';
 import { Location } from './location';
 
-export enum ApartmentOffert {
+export enum HouseOffert {
   SALE = 'SALE',
   RENT = 'RENT',
 }
 
-export enum ApartmentStatus {
+export enum HouseStatus {
   PUBLIC = 'PUBLIC',
   PRIVATE = 'PRIVATE',
 }
 
 @Entity()
-export class Apartment extends GlobalEntityIncrement {
+export class House extends GlobalEntityIncrement {
+  /**
+   * basic info
+   */
   @Column({ type: 'simple-array', nullable: false })
-  offert: ApartmentOffert[];
+  offert: HouseOffert[];
 
-  @ManyToOne(() => User, (user) => user.apartments, {
+  @ManyToOne(() => User, (user) => user.houses, {
     nullable: true,
     onDelete: 'SET NULL',
   })
@@ -39,19 +42,24 @@ export class Apartment extends GlobalEntityIncrement {
 
   @Column({ type: 'decimal', nullable: false })
   price: number;
+
   @Column({ type: 'decimal', nullable: true, default: 1 })
   price_square: number;
 
   @Column({ type: 'boolean', nullable: true, default: false })
   hot: boolean;
+
   @Column({
     type: 'enum',
-    enum: ApartmentStatus,
+    enum: HouseStatus,
     nullable: true,
-    default: ApartmentStatus.PRIVATE,
+    default: HouseStatus.PRIVATE,
   })
-  status: ApartmentStatus;
+  status: HouseStatus;
 
+  /**
+   * descriptions (multilingual)
+   */
   @Column({ type: 'text', nullable: false })
   desc_ro: string;
   @Column({ type: 'text', nullable: false })
@@ -59,50 +67,65 @@ export class Apartment extends GlobalEntityIncrement {
   @Column({ type: 'text', nullable: false })
   desc_en: string;
 
-  @OneToOne(() => Location, (location) => location.apartment, {
+  /**
+   * location
+   */
+  @OneToOne(() => Location, (location) => location.house, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   location: Location;
 
-  @Column({ type: 'int', unsigned: true, nullable: false })
-  rooms: number;
-  @Column({ type: 'int', unsigned: true, nullable: false })
-  sanitaries: number;
-  @Column({ type: 'int', unsigned: true, nullable: false })
-  surface: number;
-  @Column({ type: 'int', unsigned: true, nullable: false })
-  floor: number;
+  /**
+   * characteristics
+   */
   @Column({ type: 'int', unsigned: true, nullable: false })
   floors: number;
 
-  @ManyToOne(() => HousingStock, (housing_stock) => housing_stock.apartments, {
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  rooms: number;
+
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  bathrooms: number;
+
+  @Column({ type: 'int', unsigned: true, nullable: false })
+  area: number;
+
+  @Column({ type: 'int', unsigned: true, nullable: true, default: 0 })
+  balcony: number;
+
+  /**
+   * housing
+   */
+  @ManyToOne(() => HousingStock, (housing_stock) => housing_stock.houses, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   housing_stock: HousingStock;
+
   @ManyToMany(
     () => HousingCondition,
-    (housing_conditions) => housing_conditions.apartments,
+    (housing_condition) => housing_condition.houses,
   )
   @JoinTable()
   housing_conditions: HousingCondition[];
-  @ManyToMany(() => ApartmentFeature, (feature) => feature.apartments)
+
+  @ManyToMany(() => HouseFeature, (feature) => feature.houses)
   @JoinTable()
-  features: ApartmentFeature[];
+  features: HouseFeature[];
 
   /**
    * media
    */
-  @OneToMany(() => Media, (media) => media.apartment, {
+  @OneToMany(() => Media, (media) => media.house, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   media: Media[];
 
   /**
-   * IDK
+   * misc
    */
   @Column({ type: 'int', nullable: true, default: 1 })
   views: number;

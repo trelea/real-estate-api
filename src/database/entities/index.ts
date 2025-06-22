@@ -23,6 +23,7 @@ export * from './apartment';
  * houses
  */
 export * from './house-feature';
+export * from './house';
 
 /**
  * commercials
@@ -52,7 +53,11 @@ export * from './media';
  */
 export * from './location-category';
 export * from './location-subcategory';
+export * from './location';
 /**
  * carousel
  */
 export * from './user-carousel';
+
+export * from './commercial';
+export * from './terrain';

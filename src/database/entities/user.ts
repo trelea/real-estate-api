@@ -3,6 +3,9 @@ import { GlobalEntityUUID } from './_';
 import { Profile } from './profile';
 import { Apartment } from './apartment';
 import { UserCarousel } from './user-carousel';
+import { House } from './house';
+import { Commercial } from './commercial';
+import { Terrain } from './terrain';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -45,6 +48,24 @@ export class User extends GlobalEntityUUID {
    */
   @OneToMany(() => Apartment, (apartment) => apartment.user)
   apartments: Apartment[];
+
+  /**
+   * houses one -> many
+   */
+  @OneToMany(() => House, (house) => house.user)
+  houses: House[];
+
+  /**
+   * commercials one -> many
+   */
+  @OneToMany(() => Commercial, (commercial) => commercial.user)
+  commercials: Commercial[];
+
+  /**
+   * terrains one -> many
+   */
+  @OneToMany(() => Terrain, (terrain) => terrain.user)
+  terrains: Terrain[];
 
   /**
    * carousel
