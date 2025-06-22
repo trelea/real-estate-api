@@ -18,6 +18,7 @@ import {
   FindOptionsWhere,
   Like,
   Repository,
+  Not,
 } from 'typeorm';
 import { AwsS3Service } from '../aws-s3/aws-s3.service';
 import {
@@ -195,9 +196,9 @@ export class ServicesService {
     return await this.servicesLandingRepository.find({
       take: 4,
       relations: { service: { content: true } },
+      where: { service: { status: Not(ServiceStatus.PRIVATE) } },
       order: { position: 'ASC' },
     });
-    // this.servicesLandingRepository.clear();
   }
 
   async patchServiceLanding(position: number, service: PatchServiceLandingDto) {

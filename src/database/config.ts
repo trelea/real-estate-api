@@ -8,9 +8,11 @@ import {
   CommercialDestination,
   CommercialFeature,
   CommercialPlacing,
+  House,
   HouseFeature,
   HousingCondition,
   HousingStock,
+  Location,
   LocationCategory,
   LocationSubcategory,
   Media,
@@ -23,6 +25,8 @@ import {
   TerrainUsability,
   User,
   UserCarousel,
+  Commercial,
+  Terrain,
 } from './entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
@@ -57,17 +61,20 @@ export const dataSourceOptions = {
      * houses
      */
     HouseFeature,
+    House,
     /**
      * commercials
      */
     CommercialFeature,
     CommercialDestination,
     CommercialPlacing,
+    Commercial,
     /**
      * terrains
      */
     TerrainFeature,
     TerrainUsability,
+    Terrain,
     /**
      * aboutus, terms and conditions, policy
      */
@@ -83,6 +90,7 @@ export const dataSourceOptions = {
      */
     LocationCategory,
     LocationSubcategory,
+    Location,
     /**
      * users carousel
      */
