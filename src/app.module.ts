@@ -23,6 +23,7 @@ import { AboutUsModule } from './modules/about-us';
 import { PrivacyPolicyModule } from './modules/privacy-policy';
 import { LocationsModule } from './modules/locations';
 import { UsersCarouselModule } from './modules/users-carousel';
+import { OffertsModule } from './modules/offerts/offerts.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { UsersCarouselModule } from './modules/users-carousel';
      * users carousel
      */
     UsersCarouselModule,
+    OffertsModule,
   ],
 })
 export class AppModule {}
