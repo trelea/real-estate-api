@@ -41,7 +41,7 @@ export const dataSourceOptions = {
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV !== 'prod',
-  logging: process.env.NODE_ENV !== 'prod',
+  // logging: process.env.NODE_ENV !== 'prod',
   entities: [
     User,
     Profile,

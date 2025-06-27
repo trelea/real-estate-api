@@ -20,6 +20,7 @@ import {
   UpdateMultilingualDto,
 } from 'src/services/multilingual/dtos';
 import { TerrainsUsabilitiesService } from './terrains-usabilities.service';
+import { Public } from 'src/shared/decorators';
 
 @Controller('terrains/usabilities')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class TerrainsUsabilitiesController {
    * Get all terrain usabilities
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

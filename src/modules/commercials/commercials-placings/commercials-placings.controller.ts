@@ -20,6 +20,7 @@ import {
   UpdateMultilingualDto,
 } from 'src/services/multilingual/dtos';
 import { CommercialsPlacingsService } from './commercials-placings.service';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('commercials/placings')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class CommercialsPlacingsController {
    * Get all commercial placings
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

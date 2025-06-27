@@ -28,6 +28,15 @@ export class CategoriesController {
   constructor(private readonly locationCategoriesService: CategoriesService) {}
 
   /**
+   * all
+   */
+  @Get('all')
+  @Public()
+  async findAllCategories() {
+    return await this.locationCategoriesService._findAll();
+  }
+
+  /**
    * get location category
    */
   @Get()

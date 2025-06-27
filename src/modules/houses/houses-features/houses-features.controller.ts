@@ -12,7 +12,7 @@ import {
 import { ParseIntPipe } from '@nestjs/common/pipes';
 import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
 import { RolesGuard } from 'src/shared/guards';
-import { SetRoles } from 'src/shared/decorators';
+import { Public, SetRoles } from 'src/shared/decorators';
 import { UserRole } from 'src/database/entities';
 import { ParseIntPipeOptional } from 'src/shared/pipes';
 import {
@@ -31,6 +31,7 @@ export class HousesFeaturesController {
    * Get all house features
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

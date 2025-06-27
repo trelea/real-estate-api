@@ -4,7 +4,13 @@ import { Apartment, ApartmentStatus } from 'src/database/entities/apartment';
 import { Commercial, CommercialStatus } from 'src/database/entities/commercial';
 import { House, HouseStatus } from 'src/database/entities/house';
 import { Terrain, TerrainStatus } from 'src/database/entities/terrain';
-import { Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  In,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 
 @Injectable()
 export class OffertsService {
@@ -79,26 +85,94 @@ export class OffertsService {
     return offerts.sort(() => Math.random() - 0.5).slice(0, limit);
   }
 
-  async getApartmentsOfferts(limit: number, page: number, sort: string) {
+  async getApartmentsOfferts(
+    limit: number,
+    page: number,
+    sort: string,
+    filter: any,
+  ) {
     if (!limit) limit = 10;
     if (!page) page = 1;
 
-    const order: Record<string, 'ASC' | 'DESC'> = {
+    let order: Record<string, 'ASC' | 'DESC'> = {
       created_at: 'DESC',
     };
 
-    if (sort.includes('price')) {
-      order.price = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
-    }
+    if (sort?.includes('price'))
+      order = { price: sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC' };
 
-    if (sort.includes('area')) {
-      order.area = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
-    }
+    if (sort?.includes('area'))
+      order = { surface: sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC' };
 
-    return await this.apartmentRepository.find({
-      where: {
-        status: ApartmentStatus.PUBLIC,
-      },
+    const where: FindOptionsWhere<Apartment> = {
+      status: ApartmentStatus.PUBLIC,
+    };
+
+    if (filter.offert && filter.offert.length > 0)
+      where.offert = In(filter.offert as string[]);
+
+    if (filter.location_category && filter.location_category.length > 0)
+      where.location = {
+        location_category: {
+          id: In(filter.location_category),
+        },
+      };
+
+    if (filter.location_subcategory && filter.location_subcategory.length > 0)
+      where.location = {
+        location_subcategory: {
+          id: In(filter.location_subcategory),
+        },
+      };
+
+    if (filter.rooms && filter.rooms.length > 0) where.rooms = In(filter.rooms);
+    if (filter.rooms && filter.rooms.length > 0 && filter.rooms.includes(4))
+      where.rooms = MoreThanOrEqual(4);
+
+    if (filter.sanitaries && filter.sanitaries.length > 0)
+      where.sanitaries = In(filter.sanitaries);
+    if (
+      filter.sanitaries &&
+      filter.sanitaries.length > 0 &&
+      filter.sanitaries.includes(3)
+    )
+      where.sanitaries = MoreThanOrEqual(3);
+
+    if (filter.price_from && filter.price_from > 0)
+      where.price = MoreThanOrEqual(filter.price_from);
+
+    if (filter.price_to && filter.price_to > 0)
+      where.price = LessThanOrEqual(filter.price_to);
+
+    if (filter.price_square_from && filter.price_square_from > 0)
+      where.price_square = MoreThanOrEqual(filter.price_square_from);
+
+    if (filter.price_square_to && filter.price_square_to > 0)
+      where.price_square = LessThanOrEqual(filter.price_square_to);
+
+    if (filter.surface_from && filter.surface_from > 0)
+      where.surface = MoreThanOrEqual(filter.surface_from);
+
+    if (filter.surface_to && filter.surface_to > 0)
+      where.surface = LessThanOrEqual(filter.surface_to);
+
+    if (filter.floor_from && filter.floor_from > 0)
+      where.floor = MoreThanOrEqual(filter.floor_from);
+
+    if (filter.floor_to && filter.floor_to > 0)
+      where.floor = LessThanOrEqual(filter.floor_to);
+
+    if (filter.housing_stocks && filter.housing_stocks.length > 0)
+      where.housing_stock = In(filter.housing_stocks);
+
+    if (filter.housing_conditions && filter.housing_conditions.length > 0)
+      where.housing_conditions = In(filter.housing_conditions);
+
+    if (filter.features && filter.features.length > 0)
+      where.features = In(filter.features);
+
+    const [data, total] = await this.apartmentRepository.findAndCount({
+      where,
       skip: (page - 1) * limit,
       take: limit,
       order,
@@ -106,9 +180,19 @@ export class OffertsService {
         location: true,
       },
     });
+
+    return {
+      data,
+      meta: { page, limit, total, last_page: Math.ceil(total / limit) },
+    };
   }
 
-  async getHousesOfferts(limit: number, page: number, sort: string) {
+  async getHousesOfferts(
+    limit: number,
+    page: number,
+    sort: string,
+    filter: any,
+  ) {
     if (!limit) limit = 10;
     if (!page) page = 1;
 
@@ -116,15 +200,15 @@ export class OffertsService {
       created_at: 'DESC',
     };
 
-    if (sort.includes('price')) {
+    if (sort?.includes('price')) {
       order.price = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    if (sort.includes('area')) {
+    if (sort?.includes('area')) {
       order.area = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    return await this.houseRepository.find({
+    const [data, total] = await this.houseRepository.findAndCount({
       where: {
         status: HouseStatus.PUBLIC,
       },
@@ -136,9 +220,19 @@ export class OffertsService {
         media: true,
       },
     });
+
+    return {
+      data,
+      meta: { page, limit, total, last_page: Math.ceil(total / limit) },
+    };
   }
 
-  async getCommercialsOfferts(limit: number, page: number, sort: string) {
+  async getCommercialsOfferts(
+    limit: number,
+    page: number,
+    sort: string,
+    filter: any,
+  ) {
     if (!limit) limit = 10;
     if (!page) page = 1;
 
@@ -146,15 +240,15 @@ export class OffertsService {
       created_at: 'DESC',
     };
 
-    if (sort.includes('price')) {
+    if (sort?.includes('price')) {
       order.price = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    if (sort.includes('area')) {
+    if (sort?.includes('area')) {
       order.area = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    return await this.commercialRepository.find({
+    const [data, total] = await this.commercialRepository.findAndCount({
       where: {
         status: CommercialStatus.PUBLIC,
       },
@@ -166,9 +260,19 @@ export class OffertsService {
         media: true,
       },
     });
+
+    return {
+      data,
+      meta: { page, limit, total, last_page: Math.ceil(total / limit) },
+    };
   }
 
-  async getTerrainsOfferts(limit: number, page: number, sort: string) {
+  async getTerrainsOfferts(
+    limit: number,
+    page: number,
+    sort: string,
+    filter: any,
+  ) {
     if (!limit) limit = 10;
     if (!page) page = 1;
 
@@ -176,15 +280,15 @@ export class OffertsService {
       created_at: 'DESC',
     };
 
-    if (sort.includes('price')) {
+    if (sort?.includes('price')) {
       order.price = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    if (sort.includes('area')) {
+    if (sort?.includes('area')) {
       order.area = sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC';
     }
 
-    return await this.terrainRepository.find({
+    const [data, total] = await this.terrainRepository.findAndCount({
       where: {
         status: TerrainStatus.PUBLIC,
       },
@@ -196,6 +300,11 @@ export class OffertsService {
         media: true,
       },
     });
+
+    return {
+      data,
+      meta: { page, limit, total, last_page: Math.ceil(total / limit) },
+    };
   }
 
   async getApartmentsHotOfferts(limit: number) {

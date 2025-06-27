@@ -62,4 +62,13 @@ export class CategoriesService extends MultilingualService<LocationCategory> {
       },
     };
   }
+
+  async _findAll() {
+    return await this.locationCategoryRepository.find({
+      order: { created_at: 'DESC' },
+      relations: {
+        subcategories: true,
+      },
+    });
+  }
 }

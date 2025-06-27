@@ -20,6 +20,7 @@ import {
   CreateMultilingualDto,
   UpdateMultilingualDto,
 } from 'src/services/multilingual/dtos';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('housing-conditions')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class HousingConditionsController {
    * get housing conditions
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

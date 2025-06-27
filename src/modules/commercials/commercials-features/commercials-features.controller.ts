@@ -20,6 +20,7 @@ import {
   UpdateMultilingualDto,
 } from 'src/services/multilingual/dtos';
 import { CommercialsFeaturesService } from './commercials-features.service';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('commercials/features')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class CommercialsFeaturesController {
    * Get all commercial features
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,

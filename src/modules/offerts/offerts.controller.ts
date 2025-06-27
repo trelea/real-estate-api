@@ -1,5 +1,6 @@
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
 import { OffertsService } from './offerts.service';
+import { ParseIntPipeOptional } from 'src/shared/pipes';
 
 @Controller('offerts')
 export class OffertsController {
@@ -11,11 +12,17 @@ export class OffertsController {
 
   @Get('apartments')
   async getApartmentsOfferts(
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipeOptional) limit: number,
+    @Query('page', ParseIntPipeOptional) page: number,
     @Query('sort') sort: string,
+    @Query('filter') filter?: string,
   ) {
-    return this.offertsService.getApartmentsOfferts(limit, page, sort);
+    return this.offertsService.getApartmentsOfferts(
+      limit,
+      page,
+      sort,
+      filter ? JSON.parse(filter) : {},
+    );
   }
 
   @Get('apartments/hot')
@@ -25,43 +32,67 @@ export class OffertsController {
 
   @Get('houses')
   async getHousesOfferts(
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipeOptional) limit: number,
+    @Query('page', ParseIntPipeOptional) page: number,
     @Query('sort') sort: string,
+    @Query('filter') filter?: string,
   ) {
-    return this.offertsService.getHousesOfferts(limit, page, sort);
+    return this.offertsService.getHousesOfferts(
+      limit,
+      page,
+      sort,
+      filter ? JSON.parse(filter) : {},
+    );
   }
 
   @Get('houses/hot')
-  async getHousesHotOfferts(@Query('limit', ParseIntPipe) limit: number) {
+  async getHousesHotOfferts(
+    @Query('limit', ParseIntPipeOptional) limit: number,
+  ) {
     return this.offertsService.getHousesHotOfferts(limit);
   }
 
   @Get('commercials')
   async getCommercialsOfferts(
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipeOptional) limit: number,
+    @Query('page', ParseIntPipeOptional) page: number,
     @Query('sort') sort: string,
+    @Query('filter') filter?: string,
   ) {
-    return this.offertsService.getCommercialsOfferts(limit, page, sort);
+    return this.offertsService.getCommercialsOfferts(
+      limit,
+      page,
+      sort,
+      filter ? JSON.parse(filter) : {},
+    );
   }
 
   @Get('commercials/hot')
-  async getCommercialsHotOfferts(@Query('limit', ParseIntPipe) limit: number) {
+  async getCommercialsHotOfferts(
+    @Query('limit', ParseIntPipeOptional) limit: number,
+  ) {
     return this.offertsService.getCommercialsHotOfferts(limit);
   }
 
   @Get('terrains')
   async getTerrainsOfferts(
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipeOptional) limit: number,
+    @Query('page', ParseIntPipeOptional) page: number,
     @Query('sort') sort: string,
+    @Query('filter') filter?: string,
   ) {
-    return this.offertsService.getTerrainsOfferts(limit, page, sort);
+    return this.offertsService.getTerrainsOfferts(
+      limit,
+      page,
+      sort,
+      filter ? JSON.parse(filter) : {},
+    );
   }
 
   @Get('terrains/hot')
-  async getTerrainsHotOfferts(@Query('limit', ParseIntPipe) limit: number) {
+  async getTerrainsHotOfferts(
+    @Query('limit', ParseIntPipeOptional) limit: number,
+  ) {
     return this.offertsService.getTerrainsHotOfferts(limit);
   }
 }

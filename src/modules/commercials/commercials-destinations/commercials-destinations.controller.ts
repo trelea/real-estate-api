@@ -20,6 +20,7 @@ import {
   UpdateMultilingualDto,
 } from 'src/services/multilingual/dtos';
 import { CommercialsDestinationsService } from './commercials-destinations.service';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @Controller('commercials/destinations')
 @SetRoles([UserRole.ADMIN])
@@ -33,6 +34,7 @@ export class CommercialsDestinationsController {
    * Get all commercial destinations
    */
   @Get()
+  @Public()
   async findAll(
     @Query('page', ParseIntPipeOptional) page?: number,
     @Query('limit', ParseIntPipeOptional) limit?: number,
