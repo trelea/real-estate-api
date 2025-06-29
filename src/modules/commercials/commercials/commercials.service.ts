@@ -10,6 +10,7 @@ import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateCommercialDto } from './dtos/create-commercial.dto';
 import { UpdateCommercialDto } from './dtos/update-commercial.dto';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
+import { Request } from 'express';
 
 @Injectable()
 export class CommercialsService {
@@ -40,7 +41,7 @@ export class CommercialsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req?: Request) {
     const commercial = await this.commercialsRepository.findOne({
       where: { id },
       relations: {
@@ -54,6 +55,11 @@ export class CommercialsService {
       },
     });
     if (!commercial) throw new NotFoundException('Commercial not found');
+
+    if (!req?.user) {
+      commercial.views++;
+      await this.commercialsRepository.save(commercial);
+    }
     return commercial;
   }
 

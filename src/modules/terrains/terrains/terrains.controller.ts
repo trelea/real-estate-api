@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UseGuards,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { TerrainsService } from './terrains.service';
 import { CreateTerrainDto } from './dtos/create-terrain.dto';
@@ -19,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ThumbnailValidationPipe } from 'src/shared/pipes/thumbnail.pipe';
 import { Public } from 'src/shared/decorators';
 import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
+import { Request } from 'express';
 
 @Controller('terrains')
 @UseGuards(JwtAccessStrategyGuard)
@@ -32,8 +34,8 @@ export class TerrainsController {
 
   @Get(':id')
   @Public()
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.terrainsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.terrainsService.findOne(id, req);
   }
 
   @Post()

@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UseGuards,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { CommercialsService } from './commercials.service';
 import { CreateCommercialDto } from './dtos/create-commercial.dto';
@@ -19,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ThumbnailValidationPipe } from 'src/shared/pipes/thumbnail.pipe';
 import { Public } from 'src/shared/decorators';
 import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
+import { Request } from 'express';
 
 @Controller('commercials')
 @UseGuards(JwtAccessStrategyGuard)
@@ -32,8 +34,8 @@ export class CommercialsController {
 
   @Get(':id')
   @Public()
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.commercialsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.commercialsService.findOne(id, req);
   }
 
   @Post()

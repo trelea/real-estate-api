@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateApartmentDto } from './dtos/update-apartment.dto';
 import { Public } from 'src/shared/decorators';
 import { JwtAccessStrategyGuard } from 'src/core/auth/guards';
+import { Request } from 'express';
 
 @Controller('apartments')
 @UseGuards(JwtAccessStrategyGuard)
@@ -32,8 +34,8 @@ export class ApartmentsController {
 
   @Get(':id')
   @Public()
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.apartmentsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.apartmentsService.findOne(id, req);
   }
 
   @Post()

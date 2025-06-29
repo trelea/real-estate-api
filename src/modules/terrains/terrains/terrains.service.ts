@@ -10,6 +10,7 @@ import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateTerrainDto } from './dtos/create-terrain.dto';
 import { UpdateTerrainDto } from './dtos/update-terrain.dto';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
+import { Request } from 'express';
 
 @Injectable()
 export class TerrainsService {
@@ -40,7 +41,7 @@ export class TerrainsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req?: Request) {
     const terrain = await this.terrainsRepository.findOne({
       where: { id },
       relations: {
@@ -52,6 +53,12 @@ export class TerrainsService {
       },
     });
     if (!terrain) throw new NotFoundException('Terrain not found');
+
+    if (!req?.user) {
+      terrain.views++;
+      await this.terrainsRepository.save(terrain);
+    }
+
     return terrain;
   }
 

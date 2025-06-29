@@ -19,6 +19,7 @@ import { DeepPartial, EntityManager, In, Repository } from 'typeorm';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
 import { CreateHouseDto } from './dtos/create-house.dto';
 import { UpdateHouseDto } from './dtos/update-house.dto';
+import { Request } from 'express';
 
 @Injectable()
 export class HousesService {
@@ -75,7 +76,7 @@ export class HousesService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, req?: Request) {
     try {
       const house = await this.housesRepository.findOne({
         where: { id },
@@ -96,6 +97,10 @@ export class HousesService {
 
       if (!house) {
         throw new NotFoundException('House not found');
+      }
+      if (!req?.user) {
+        house.views++;
+        await this.housesRepository.save(house);
       }
 
       return house;
