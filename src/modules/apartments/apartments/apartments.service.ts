@@ -20,6 +20,7 @@ import { DeepPartial, EntityManager, Repository, In } from 'typeorm';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
 import { UpdateApartmentDto } from './dtos/update-apartment.dto';
 import { Request } from 'express';
+import { ImageProcessingService } from 'src/services/image-processing';
 
 @Injectable()
 export class ApartmentsService {
@@ -99,13 +100,12 @@ export class ApartmentsService {
         throw new NotFoundException('Apartment not found');
       }
 
-      if (!req?.user) {
-        apartment.views++;
-        await this.apartmentsRepository.save(apartment);
-      }
+      // Skip views increment for now to prevent hanging
+      // TODO: Implement this with a queue or background job
 
       return apartment;
     } catch (err) {
+      console.error('Error in findOne:', err);
       throw new InternalServerErrorException(err.message);
     }
   }
@@ -163,103 +163,142 @@ export class ApartmentsService {
   }
 
   async update(id: number, updateData: UpdateApartmentDto) {
+    const queryRunner = this.entityManager.connection.createQueryRunner();
+
     try {
-      const apartment = await this.findOne(id);
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-      return await this.entityManager.transaction(async (manager) => {
-        // If location data is provided, update location
-        if (
-          updateData.location_category ||
-          updateData.location_subcategory ||
-          updateData.lat ||
-          updateData.lng ||
-          updateData.street_en ||
-          updateData.street_ro ||
-          updateData.street_ru
-        ) {
-          const location = apartment.location;
-          if (updateData.location_category) {
-            const category = await this.locationCategoryRepository.findOneBy({
-              id: updateData.location_category,
-            });
-            if (category) location.location_category = category;
-          }
-          if (updateData.location_subcategory) {
-            const subcategory =
-              await this.locationSubcategoryRepository.findOneBy({
-                id: updateData.location_subcategory,
-              });
-            if (subcategory) location.location_subcategory = subcategory;
-          }
-          if (updateData.lat) location.lat = updateData.lat;
-          if (updateData.lng) location.lng = updateData.lng;
-          if (updateData.street_en) location.street_en = updateData.street_en;
-          if (updateData.street_ro) location.street_ro = updateData.street_ro;
-          if (updateData.street_ru) location.street_ru = updateData.street_ru;
-
-          await manager.save(location);
-        }
-
-        // Remove location-related fields from updateData
-        const {
-          location_category,
-          location_subcategory,
-          lat,
-          lng,
-          street_en,
-          street_ro,
-          street_ru,
-          features: featureIds,
-          housing_conditions: conditionIds,
-          ...apartmentData
-        } = updateData;
-
-        // Update apartment relations if provided
-        if (apartmentData.housing_stock) {
-          const housingStock = await this.housingStockRepository.findOneBy({
-            id: apartmentData.housing_stock,
-          });
-          if (housingStock) apartment.housing_stock = housingStock;
-        }
-        if (conditionIds) {
-          const conditions = await this.housingConditionRepository.findBy({
-            id: In(conditionIds),
-          });
-          if (conditions.length) apartment.housing_conditions = conditions;
-        }
-        if (featureIds) {
-          const features = await this.apartmentFeatureRepository.findBy({
-            id: In(featureIds),
-          });
-          if (features.length) apartment.features = features;
-        }
-        if (apartmentData.user) {
-          const user = await this.userRepository.findOneBy({
-            id: apartmentData.user,
-          });
-          if (user) apartment.user = user;
-        }
-
-        // Remove relation arrays from apartmentData so they don't overwrite
-        delete (apartmentData as any).features;
-        delete (apartmentData as any).housing_conditions;
-
-        // Update price_square if price or surface is updated
-        if (apartmentData.price || apartmentData.surface) {
-          const price = apartmentData.price || apartment.price;
-          const surface = apartmentData.surface || apartment.surface;
-          apartment.price_square = price / surface;
-        }
-
-        // Update remaining fields
-        Object.assign(apartment, apartmentData);
-
-        // Save and return updated apartment
-        const updated = await manager.save(apartment);
-        return this.findOne(updated.id);
+      // Get apartment without views increment
+      const apartment = await queryRunner.manager.findOne(Apartment, {
+        where: { id },
+        relations: {
+          location: {
+            location_category: true,
+            location_subcategory: true,
+          },
+          user: {
+            profile: true,
+          },
+          media: true,
+          housing_stock: true,
+          housing_conditions: true,
+          features: true,
+        },
       });
+
+      if (!apartment) {
+        throw new NotFoundException('Apartment not found');
+      }
+
+      // Handle location updates
+      if (
+        updateData.location_category ||
+        updateData.location_subcategory ||
+        updateData.lat ||
+        updateData.lng ||
+        updateData.street_en ||
+        updateData.street_ro ||
+        updateData.street_ru
+      ) {
+        const location = apartment.location;
+        if (updateData.location_category) {
+          const category = await queryRunner.manager.findOneBy(
+            LocationCategory,
+            {
+              id: updateData.location_category,
+            },
+          );
+          if (category) location.location_category = category;
+        }
+        if (updateData.location_subcategory) {
+          const subcategory = await queryRunner.manager.findOneBy(
+            LocationSubcategory,
+            {
+              id: updateData.location_subcategory,
+            },
+          );
+          if (subcategory) location.location_subcategory = subcategory;
+        }
+        if (updateData.lat) location.lat = updateData.lat;
+        if (updateData.lng) location.lng = updateData.lng;
+        if (updateData.street_en) location.street_en = updateData.street_en;
+        if (updateData.street_ro) location.street_ro = updateData.street_ro;
+        if (updateData.street_ru) location.street_ru = updateData.street_ru;
+
+        await queryRunner.manager.save(location);
+      }
+
+      // Remove location-related fields from updateData
+      const {
+        location_category,
+        location_subcategory,
+        lat,
+        lng,
+        street_en,
+        street_ro,
+        street_ru,
+        features: featureIds,
+        housing_conditions: conditionIds,
+        ...apartmentData
+      } = updateData;
+
+      // Update apartment relations if provided
+      if (apartmentData.housing_stock) {
+        const housingStock = await queryRunner.manager.findOneBy(HousingStock, {
+          id: apartmentData.housing_stock,
+        });
+        if (housingStock) apartment.housing_stock = housingStock;
+      }
+      if (conditionIds) {
+        const conditions = await queryRunner.manager.findBy(HousingCondition, {
+          id: In(conditionIds),
+        });
+        if (conditions.length) apartment.housing_conditions = conditions;
+      }
+      if (featureIds) {
+        const features = await queryRunner.manager.findBy(ApartmentFeature, {
+          id: In(featureIds),
+        });
+        if (features.length) apartment.features = features;
+      }
+      if (apartmentData.user) {
+        const user = await queryRunner.manager.findOneBy(User, {
+          id: apartmentData.user,
+        });
+        if (user) apartment.user = user;
+      }
+
+      // Remove relation arrays from apartmentData so they don't overwrite
+      delete (apartmentData as any).features;
+      delete (apartmentData as any).housing_conditions;
+
+      // Update price_square if price or surface is updated
+      if (apartmentData.price || apartmentData.surface) {
+        const price = apartmentData.price || apartment.price;
+        const surface = apartmentData.surface || apartment.surface;
+        apartment.price_square = price / surface;
+      }
+
+      // Update remaining fields
+      Object.assign(apartment, apartmentData);
+
+      // Save the updated apartment
+      const updated = await queryRunner.manager.save(apartment);
+
+      // Commit the transaction
+      await queryRunner.commitTransaction();
+
+      console.log('Apartment updated successfully');
+      return updated;
     } catch (err) {
+      // Rollback transaction on error
+      await queryRunner.rollbackTransaction();
+      console.error('Error in apartment update:', err);
       throw new InternalServerErrorException(err.message);
+    } finally {
+      // Always release the query runner
+      await queryRunner.release();
     }
   }
 
@@ -267,12 +306,10 @@ export class ApartmentsService {
     try {
       let url: string | undefined = undefined;
       if (media) url = (await this.awsS3Service.uploadFile(media)).url;
-
       const _media = this.mediasRepository.create({
         apartment: id as DeepPartial<Apartment>,
         url,
       });
-
       return await this.mediasRepository.save(_media);
     } catch (err) {
       throw new InternalServerErrorException(err.message);
@@ -310,6 +347,21 @@ export class ApartmentsService {
       return { message: 'Media removed successfully' };
     } catch (err) {
       throw new InternalServerErrorException(err.message);
+    }
+  }
+
+  async incrementViews(id: number): Promise<void> {
+    try {
+      // Use a simple query with timeout
+      await this.apartmentsRepository
+        .createQueryBuilder()
+        .update(Apartment)
+        .set({ views: () => 'views + 1' })
+        .where('id = :id', { id })
+        .execute();
+    } catch (err) {
+      console.error('Failed to increment views:', err);
+      // Don't throw error - views increment failure shouldn't break the app
     }
   }
 }

@@ -1,26 +1,26 @@
 import { Module } from '@nestjs/common';
 import { ApartmentsController } from './apartments.controller';
 import { ApartmentsService } from './apartments.service';
-import { DatabaseModule } from 'src/database';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Apartment,
+  ApartmentFeature,
+  HousingCondition,
+  HousingStock,
   Location,
-  Media,
   LocationCategory,
   LocationSubcategory,
-  HousingStock,
-  HousingCondition,
-  ApartmentFeature,
+  Media,
   User,
 } from 'src/database/entities';
 import { AwsS3Module } from 'src/modules/aws-s3/aws-s3.module';
 
 @Module({
   imports: [
-    DatabaseModule.forFeature([
+    TypeOrmModule.forFeature([
       Apartment,
-      Media,
       Location,
+      Media,
       LocationCategory,
       LocationSubcategory,
       HousingStock,

@@ -42,6 +42,16 @@ export const dataSourceOptions = {
   database: process.env.DB_NAME,
   synchronize: process.env.NODE_ENV !== 'prod',
   // logging: process.env.NODE_ENV !== 'prod',
+
+  // Add connection pool and timeout settings
+  extra: {
+    connectionTimeoutMillis: 30000, // 30 seconds connection timeout
+    idleTimeoutMillis: 30000, // 30 seconds idle timeout
+    max: 20, // maximum number of clients in the pool
+    statement_timeout: 30000, // 30 seconds statement timeout
+    query_timeout: 30000, // 30 seconds query timeout
+  },
+
   entities: [
     User,
     Profile,

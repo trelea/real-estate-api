@@ -42,25 +42,32 @@ export class CommercialsService {
   }
 
   async findOne(id: number, req?: Request) {
-    const commercial = await this.commercialsRepository.findOne({
-      where: { id },
-      relations: {
-        location: { location_category: true, location_subcategory: true },
-        user: { profile: true },
-        media: true,
-        housing_conditions: true,
-        commercial_destinations: true,
-        commercial_placings: true,
-        features: true,
-      },
-    });
-    if (!commercial) throw new NotFoundException('Commercial not found');
+    try {
+      const commercial = await this.commercialsRepository.findOne({
+        where: { id },
+        relations: {
+          location: { location_category: true, location_subcategory: true },
+          user: { profile: true },
+          media: true,
+          housing_conditions: true,
+          commercial_destinations: true,
+          commercial_placings: true,
+          features: true,
+        },
+      });
+      if (!commercial) throw new NotFoundException('Commercial not found');
 
-    if (!req?.user) {
-      commercial.views++;
-      await this.commercialsRepository.save(commercial);
+      if (!req?.user) {
+        await this.commercialsRepository.query(
+          'UPDATE commercial SET views = views + 1 WHERE id = $1',
+          [id],
+        );
+      }
+      return commercial;
+    } catch (err) {
+      console.error('Error in findOne:', err);
+      throw new InternalServerErrorException(err.message);
     }
-    return commercial;
   }
 
   async create(dto: CreateCommercialDto) {

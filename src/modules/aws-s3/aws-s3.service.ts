@@ -44,5 +44,31 @@ export class AwsS3Service {
     }
   }
 
+  // New method for uploading processed image buffer
+  async uploadProcessedImage(
+    buffer: Buffer,
+    originalFilename: string,
+    contentType: string = 'image/jpeg',
+    metadata?: unknown,
+  ): Promise<AwsS3UploadFileResponseType> {
+    const Key: string = `${randomUUID()}-${Date.now()}-watermarked-${originalFilename}`;
+    const command = new PutObjectCommand({
+      Bucket: this.bucket,
+      Body: buffer,
+      Key,
+      ContentType: contentType,
+      ACL: 'public-read',
+      Metadata: { data: JSON.stringify(metadata) },
+    });
+    try {
+      return {
+        object: await this.s3.send(command),
+        url: `https://${this.bucket}.s3.${this.configService.getOrThrow<string>('AWS_S3_REGION')}.amazonaws.com/${Key}`,
+      };
+    } catch (err) {
+      throw new S3UploadException();
+    }
+  }
+
   async deleteFile() {}
 }
