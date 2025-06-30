@@ -183,7 +183,7 @@ export class CommercialsService {
         Object.assign(commercial, rest);
         // Return updated entity
         const updated = await manager.save(commercial);
-        return this.findOne(updated.id);
+        return await this.findOne(updated.id);
       });
     } catch (err) {
       throw new InternalServerErrorException(err.message);

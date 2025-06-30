@@ -253,7 +253,7 @@ export class HousesService {
         Object.assign(house, houseData);
 
         const updated = await manager.save(house);
-        return this.findOne(updated.id);
+        return await this.findOne(updated.id);
       });
     } catch (err) {
       throw new InternalServerErrorException(err.message);

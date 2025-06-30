@@ -152,7 +152,7 @@ export class TerrainsService {
         Object.assign(terrain, rest);
         // Return updated entity
         const updated = await manager.save(terrain);
-        return this.findOne(updated.id);
+        return await this.findOne(updated.id);
       });
     } catch (err) {
       throw new InternalServerErrorException(err.message);
