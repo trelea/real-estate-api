@@ -175,7 +175,15 @@ export class TerrainsService {
   async uploadMedia(id: number, media?: Express.Multer.File) {
     try {
       let url: string | undefined = undefined;
-      if (media) url = (await this.awsS3Service.uploadFile(media)).url;
+      if (media) {
+        // Use watermarked upload for terrain images
+        url = (
+          await this.awsS3Service.uploadFileWithWatermark(media, {
+            propertyType: 'terrain',
+            propertyId: id,
+          })
+        ).url;
+      }
       const _media = this.mediasRepository.create({
         terrain: id as DeepPartial<Terrain>,
         url,

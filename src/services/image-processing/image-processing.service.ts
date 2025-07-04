@@ -1,10 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import * as sharp from 'sharp';
 import * as path from 'path';
 import * as fs from 'fs';
 
 @Injectable()
 export class ImageProcessingService {
+  private readonly logger = new Logger(ImageProcessingService.name);
   private watermarkPath: string;
 
   constructor() {
@@ -15,6 +20,13 @@ export class ImageProcessingService {
       'assets',
       'watermark.png',
     );
+
+    // Check if watermark exists at startup
+    if (!fs.existsSync(this.watermarkPath)) {
+      this.logger.error(`Watermark file not found at: ${this.watermarkPath}`);
+    } else {
+      this.logger.log(`Watermark file found at: ${this.watermarkPath}`);
+    }
   }
 
   async addWatermark(
@@ -25,18 +37,24 @@ export class ImageProcessingService {
         | 'top-right'
         | 'bottom-left'
         | 'bottom-right'
+        | 'bottom-center'
         | 'center';
-      scale?: number; // Scale watermark relative to image size (0.1 = 10% of image width)
+      scale?: number;
     },
   ): Promise<Buffer> {
     try {
       const {
-        position = 'bottom-right',
-        scale = 0.15, // 15% of image width by default
+        position = 'bottom-center', // Changed default from 'bottom-right' to 'bottom-center'
+        scale = 0.35, // 35% of image width
       } = options || {};
+
+      this.logger.log(
+        `Adding watermark with position: ${position}, scale: ${scale}`,
+      );
 
       // Check if watermark file exists
       if (!fs.existsSync(this.watermarkPath)) {
+        this.logger.error(`Watermark file not found at: ${this.watermarkPath}`);
         throw new Error(`Watermark file not found at: ${this.watermarkPath}`);
       }
 
@@ -44,14 +62,21 @@ export class ImageProcessingService {
       const image = sharp(imageBuffer);
       const metadata = await image.metadata();
 
+      this.logger.log(
+        `Original image: ${metadata.width}x${metadata.height}, format: ${metadata.format}`,
+      );
+
       if (!metadata.width || !metadata.height) {
         throw new Error('Could not get image dimensions');
       }
 
       // Calculate watermark size based on image dimensions
       const watermarkWidth = Math.trunc(metadata.width * scale);
+      this.logger.log(
+        `Watermark width will be: ${watermarkWidth}px (${scale * 100}% of image width)`,
+      );
 
-      // Load and resize watermark, ensuring it's processed correctly
+      // Load and resize watermark
       const processedWatermark = await sharp(this.watermarkPath)
         .resize({
           width: watermarkWidth,
@@ -63,6 +88,9 @@ export class ImageProcessingService {
 
       // Get watermark metadata after resizing
       const watermarkMetadata = await sharp(processedWatermark).metadata();
+      this.logger.log(
+        `Processed watermark: ${watermarkMetadata.width}x${watermarkMetadata.height}`,
+      );
 
       if (!watermarkMetadata.width || !watermarkMetadata.height) {
         throw new Error('Could not get watermark dimensions');
@@ -77,7 +105,9 @@ export class ImageProcessingService {
         position,
       );
 
-      // Apply watermark
+      this.logger.log(`Watermark position: left=${left}, top=${top}`);
+
+      // Apply watermark with high quality settings
       const watermarkedImage = await image
         .composite([
           {
@@ -87,11 +117,19 @@ export class ImageProcessingService {
             blend: 'over',
           },
         ])
-        .jpeg({ quality: 90 })
+        .jpeg({
+          quality: 95, // High quality
+          progressive: true,
+          mozjpeg: true,
+        })
         .toBuffer();
 
+      this.logger.log(
+        `Watermarked image created successfully. Size: ${watermarkedImage.length} bytes`,
+      );
       return watermarkedImage;
     } catch (error) {
+      this.logger.error('Failed to add watermark:', error);
       throw new InternalServerErrorException(
         `Failed to add watermark: ${error.message}`,
       );
@@ -106,6 +144,7 @@ export class ImageProcessingService {
         | 'top-right'
         | 'bottom-left'
         | 'bottom-right'
+        | 'bottom-center'
         | 'center';
       opacity?: number;
       scale?: number;
@@ -113,9 +152,9 @@ export class ImageProcessingService {
   ): Promise<Buffer> {
     try {
       const {
-        position = 'bottom-right',
+        position = 'bottom-center',
         opacity = 0.8,
-        scale = 0.15,
+        scale = 0.35, // Increased from 0.15 to 0.35
       } = options || {};
 
       if (!fs.existsSync(this.watermarkPath)) {
@@ -202,7 +241,7 @@ export class ImageProcessingService {
             blend: 'over',
           },
         ])
-        .jpeg({ quality: 90 })
+        .jpeg({ quality: 95 })
         .toBuffer();
 
       return watermarkedImage;
@@ -213,7 +252,6 @@ export class ImageProcessingService {
     }
   }
 
-  // Simplified version that just uses the watermark as-is with Sharp's built-in blending
   async addWatermarkSimple(
     imageBuffer: Buffer,
     options?: {
@@ -222,12 +260,13 @@ export class ImageProcessingService {
         | 'top-right'
         | 'bottom-left'
         | 'bottom-right'
+        | 'bottom-center'
         | 'center';
       scale?: number;
     },
   ): Promise<Buffer> {
     try {
-      const { position = 'bottom-right', scale = 0.15 } = options || {};
+      const { position = 'bottom-center', scale = 0.35 } = options || {}; // Increased scale
 
       if (!fs.existsSync(this.watermarkPath)) {
         throw new Error(`Watermark file not found at: ${this.watermarkPath}`);
@@ -274,7 +313,7 @@ export class ImageProcessingService {
             blend: 'over',
           },
         ])
-        .jpeg({ quality: 90 })
+        .jpeg({ quality: 95 })
         .toBuffer();
 
       return result;
@@ -292,7 +331,7 @@ export class ImageProcessingService {
     watermarkHeight: number,
     position: string,
   ): { left: number; top: number } {
-    const margin = 20;
+    const margin = 40; // Margin from edges
     let left: number, top: number;
 
     switch (position) {
@@ -312,14 +351,19 @@ export class ImageProcessingService {
         left = imageWidth - watermarkWidth - margin;
         top = imageHeight - watermarkHeight - margin;
         break;
-      case 'center':
-        // Horizontally centered
+      case 'bottom-center':
+        // NEW: Horizontally centered, at the bottom
         left = Math.trunc((imageWidth - watermarkWidth) / 2);
-        // Positioned towards bottom (75% down from top)
-        top = Math.trunc(imageHeight * 0.75 - watermarkHeight / 2);
+        top = imageHeight - watermarkHeight - margin;
+        break;
+      case 'center':
+        // Complete center of image
+        left = Math.trunc((imageWidth - watermarkWidth) / 2);
+        top = Math.trunc((imageHeight - watermarkHeight) / 2);
         break;
       default:
-        left = imageWidth - watermarkWidth - margin;
+        // Default to bottom-center
+        left = Math.trunc((imageWidth - watermarkWidth) / 2);
         top = imageHeight - watermarkHeight - margin;
     }
 

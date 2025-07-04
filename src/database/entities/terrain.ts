@@ -45,11 +45,11 @@ export class Terrain extends GlobalEntityIncrement {
   @Column({ type: 'enum', enum: TerrainStatus, default: TerrainStatus.PRIVATE })
   status: TerrainStatus;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_ro: string;
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_ru: string;
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_en: string;
 
   /** location */

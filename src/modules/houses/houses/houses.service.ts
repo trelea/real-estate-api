@@ -263,7 +263,15 @@ export class HousesService {
   async uploadMedia(id: number, media?: Express.Multer.File) {
     try {
       let url: string | undefined = undefined;
-      if (media) url = (await this.awsS3Service.uploadFile(media)).url;
+      if (media) {
+        // Use watermarked upload for house images
+        url = (
+          await this.awsS3Service.uploadFileWithWatermark(media, {
+            propertyType: 'house',
+            propertyId: id,
+          })
+        ).url;
+      }
 
       const _media = this.mediasRepository.create({
         house: id as DeepPartial<House>,

@@ -54,11 +54,11 @@ export class Commercial extends GlobalEntityIncrement {
   })
   status: CommercialStatus;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_ro: string;
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_ru: string;
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   desc_en: string;
 
   /** location */

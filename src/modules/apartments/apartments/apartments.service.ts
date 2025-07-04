@@ -305,7 +305,15 @@ export class ApartmentsService {
   async uploadMedia(id: number, media?: Express.Multer.File) {
     try {
       let url: string | undefined = undefined;
-      if (media) url = (await this.awsS3Service.uploadFile(media)).url;
+      if (media) {
+        // Use watermarked upload for apartment images
+        url = (
+          await this.awsS3Service.uploadFileWithWatermark(media, {
+            propertyType: 'apartment',
+            propertyId: id,
+          })
+        ).url;
+      }
       const _media = this.mediasRepository.create({
         apartment: id as DeepPartial<Apartment>,
         url,

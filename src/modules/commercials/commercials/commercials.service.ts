@@ -208,7 +208,15 @@ export class CommercialsService {
   async uploadMedia(id: number, media?: Express.Multer.File) {
     try {
       let url: string | undefined = undefined;
-      if (media) url = (await this.awsS3Service.uploadFile(media)).url;
+      if (media) {
+        // Use watermarked upload for commercial images
+        url = (
+          await this.awsS3Service.uploadFileWithWatermark(media, {
+            propertyType: 'commercial',
+            propertyId: id,
+          })
+        ).url;
+      }
       const _media = this.mediasRepository.create({
         commercial: id as DeepPartial<Commercial>,
         url,
