@@ -1,0 +1,7 @@
+# Enable ACL with two users
+
+# Default user (disabled if not needed)
+user default off
+
+# Custom app user
+user <USER> on ><PASSWORD> allkeys allcommands
