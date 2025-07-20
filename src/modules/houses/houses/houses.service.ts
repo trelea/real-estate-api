@@ -266,7 +266,7 @@ export class HousesService {
       if (media) {
         // Use watermarked upload for house images
         url = (
-          await this.awsS3Service.uploadFileWithWatermark(media, {
+          await this.awsS3Service.uploadFile(media, {
             propertyType: 'house',
             propertyId: id,
           })

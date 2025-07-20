@@ -20,7 +20,7 @@ import { DeepPartial, EntityManager, Repository, In } from 'typeorm';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
 import { UpdateApartmentDto } from './dtos/update-apartment.dto';
 import { Request } from 'express';
-import { ImageProcessingService } from 'src/services/image-processing';
+// import { ImageProcessingService } from 'src/services/image-processing';
 
 @Injectable()
 export class ApartmentsService {
@@ -308,7 +308,7 @@ export class ApartmentsService {
       if (media) {
         // Use watermarked upload for apartment images
         url = (
-          await this.awsS3Service.uploadFileWithWatermark(media, {
+          await this.awsS3Service.uploadFile(media, {
             propertyType: 'apartment',
             propertyId: id,
           })

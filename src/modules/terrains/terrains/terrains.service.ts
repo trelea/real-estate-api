@@ -178,7 +178,7 @@ export class TerrainsService {
       if (media) {
         // Use watermarked upload for terrain images
         url = (
-          await this.awsS3Service.uploadFileWithWatermark(media, {
+          await this.awsS3Service.uploadFile(media, {
             propertyType: 'terrain',
             propertyId: id,
           })
