@@ -48,7 +48,7 @@ export class AuthService {
         accessToken,
         {
           httpOnly: true,
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: process.env.NODE_ENV === 'prod',
           maxAge:
             60 *
@@ -66,7 +66,7 @@ export class AuthService {
         refreshToken,
         {
           httpOnly: true,
-          sameSite: 'strict',
+          sameSite: 'none',
           secure: process.env.NODE_ENV === 'prod',
           maxAge:
             60 *
@@ -158,7 +158,7 @@ export class AuthService {
       accessToken,
       {
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: process.env.NODE_ENV === 'prod',
         maxAge:
           60 *
