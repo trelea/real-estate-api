@@ -9,12 +9,12 @@ import {
   JwtRefreshStrategyGuard,
   LocalStrategyGuard,
 } from './guards';
-import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
+// import { SkipThrottle } from '@nestjs/throttler';
 // import { SetRoles } from 'src/shared/decorators';
 // import { UserRole } from 'src/database/entities';
 // import { RolesGuard } from 'src/shared/guards';
 
-@UseGuards(ThrottlerGuard)
+// @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -45,7 +45,6 @@ export class AuthController {
     return this.authService.signout(req, res);
   }
 
-  @SkipThrottle()
   @Post('refresh')
   @UseGuards(JwtRefreshStrategyGuard)
   async refresh(
@@ -55,7 +54,6 @@ export class AuthController {
     return await this.authService.refresh(req, res);
   }
 
-  @SkipThrottle()
   @Get('status')
   @UseGuards(JwtAccessStrategyGuard)
   async status(@Req() req: Request) {
