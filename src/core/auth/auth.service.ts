@@ -48,8 +48,8 @@ export class AuthService {
         accessToken,
         {
           httpOnly: true,
-          // sameSite: 'none',
-          // secure: process.env.NODE_ENV === 'prod',
+          sameSite: 'none',
+          secure: process.env.NODE_ENV === 'prod',
           maxAge:
             60 *
             1000 *
@@ -66,8 +66,8 @@ export class AuthService {
         refreshToken,
         {
           httpOnly: true,
-          // sameSite: 'none',
-          // secure: process.env.NODE_ENV === 'prod',
+          sameSite: 'none',
+          secure: process.env.NODE_ENV === 'prod',
           maxAge:
             60 *
             1000 *
@@ -158,8 +158,8 @@ export class AuthService {
       accessToken,
       {
         httpOnly: true,
-        // sameSite: 'none',
-        // secure: process.env.NODE_ENV === 'prod',
+        sameSite: 'none',
+        secure: process.env.NODE_ENV === 'prod',
         maxAge:
           60 *
           1000 *
