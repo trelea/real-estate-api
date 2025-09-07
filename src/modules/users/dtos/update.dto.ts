@@ -20,6 +20,10 @@ export class UpdateUserDto {
 
   @IsString()
   @IsOptional()
+  job_function?: string;
+
+  @IsString()
+  @IsOptional()
   name?: string;
 
   @IsString()

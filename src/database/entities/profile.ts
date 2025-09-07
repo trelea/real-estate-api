@@ -17,6 +17,9 @@ export class Profile extends GlobalEntityUUID {
   @Column({ type: 'varchar', nullable: true })
   thumbnail: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  job_function: string;
+
   /**
    * socials contacts
    */

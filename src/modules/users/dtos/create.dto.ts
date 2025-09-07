@@ -16,6 +16,10 @@ export class CreateUserDto extends SigninDto {
   role?: UserRole;
 
   @IsString()
+  @IsOptional()
+  job_function?: string;
+
+  @IsString()
   @IsNotEmpty()
   name: string;
 
