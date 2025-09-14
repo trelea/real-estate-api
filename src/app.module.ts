@@ -24,6 +24,7 @@ import { PrivacyPolicyModule } from './modules/privacy-policy';
 import { LocationsModule } from './modules/locations';
 import { UsersCarouselModule } from './modules/users-carousel';
 import { OffertsModule } from './modules/offerts/offerts.module';
+import { ProxyMediaModule } from './modules/proxy-media/proxy-media.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { OffertsModule } from './modules/offerts/offerts.module';
      */
     UsersCarouselModule,
     OffertsModule,
+    ProxyMediaModule,
   ],
 })
 export class AppModule {}
