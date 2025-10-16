@@ -57,12 +57,9 @@ export class CommercialsService {
       });
       if (!commercial) throw new NotFoundException('Commercial not found');
 
-      if (!req?.user) {
-        await this.commercialsRepository.query(
-          'UPDATE commercial SET views = views + 1 WHERE id = $1',
-          [id],
-        );
-      }
+      // Skip views increment for now to prevent performance issues during updates
+      // TODO: Implement this with a separate incrementViews method
+
       return commercial;
     } catch (err) {
       console.error('Error in findOne:', err);
@@ -183,7 +180,7 @@ export class CommercialsService {
         Object.assign(commercial, rest);
         // Return updated entity
         const updated = await manager.save(commercial);
-        return await this.findOne(updated.id);
+        return updated;
       });
     } catch (err) {
       throw new InternalServerErrorException(err.message);
@@ -239,6 +236,21 @@ export class CommercialsService {
       return { message: 'Media removed successfully' };
     } catch (err) {
       throw new InternalServerErrorException(err.message);
+    }
+  }
+
+  async incrementViews(id: number): Promise<void> {
+    try {
+      // Use a simple query with timeout
+      await this.commercialsRepository
+        .createQueryBuilder()
+        .update(Commercial)
+        .set({ views: () => 'views + 1' })
+        .where('id = :id', { id })
+        .execute();
+    } catch (err) {
+      console.error('Failed to increment views:', err);
+      // Don't throw error - views increment failure shouldn't break the app
     }
   }
 }

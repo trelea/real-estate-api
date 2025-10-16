@@ -43,13 +43,14 @@ export class AuthService {
       /**
        * Set-Cookie: Access Token
        */
+      const isProd = process.env.NODE_ENV === 'prod';
       res.cookie(
         this.configService.getOrThrow<string>('JWT_ACCESS_COOKIE_NAME'),
         accessToken,
         {
           httpOnly: true,
-          sameSite: 'none',
-          secure: process.env.NODE_ENV === 'prod',
+          sameSite: isProd ? 'none' : 'lax',
+          secure: isProd,
           maxAge:
             60 *
             1000 *
@@ -66,8 +67,8 @@ export class AuthService {
         refreshToken,
         {
           httpOnly: true,
-          sameSite: 'none',
-          secure: process.env.NODE_ENV === 'prod',
+          sameSite: isProd ? 'none' : 'lax',
+          secure: isProd,
           maxAge:
             60 *
             1000 *
@@ -116,11 +117,22 @@ export class AuthService {
       ns: CACHE_NAMESPACE.RTKNS,
       key: req.user?.id as string,
     });
+    const isProd = process.env.NODE_ENV === 'prod';
     res.clearCookie(
       this.configService.getOrThrow<string>('JWT_ACCESS_COOKIE_NAME'),
+      {
+        httpOnly: true,
+        sameSite: isProd ? 'none' : 'lax',
+        secure: isProd,
+      },
     );
     res.clearCookie(
       this.configService.getOrThrow<string>('JWT_REFRESH_COOKIE_NAME'),
+      {
+        httpOnly: true,
+        sameSite: isProd ? 'none' : 'lax',
+        secure: isProd,
+      },
     );
     return;
   }
@@ -153,13 +165,14 @@ export class AuthService {
     /**
      * Set-Cookie: Access Token
      */
+    const isProd = process.env.NODE_ENV === 'prod';
     res.cookie(
       this.configService.getOrThrow<string>('JWT_ACCESS_COOKIE_NAME'),
       accessToken,
       {
         httpOnly: true,
-        sameSite: 'none',
-        secure: process.env.NODE_ENV === 'prod',
+        sameSite: isProd ? 'none' : 'lax',
+        secure: isProd,
         maxAge:
           60 *
           1000 *
