@@ -9,7 +9,7 @@ import { CreateUserDto, UpdateUserDto } from './dtos';
 import { UsersService as _UsersService } from '../../core/users';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, UserPriority } from 'src/database/entities';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, Not, In } from 'typeorm';
 
 @Injectable()
 export class UsersService {
@@ -38,12 +38,17 @@ export class UsersService {
     if (!page || page < 1) page = 1;
     if (!limit || limit < 1) limit = 20;
 
-    let where = {};
+    const excludedEmails = ['admin@admin.com', 'trelea@trelea.com'];
+
+    let where: any = {
+      email: Not(In(excludedEmails)),
+    };
+
     if (search) {
       where = [
-        { email: Like(`%${search}%`) },
-        { profile: { name: Like(`%${search}%`) } },
-        { profile: { surname: Like(`%${search}%`) } },
+        { email: Like(`%${search}%`), email: Not(In(excludedEmails)) },
+        { profile: { name: Like(`%${search}%`) }, email: Not(In(excludedEmails)) },
+        { profile: { surname: Like(`%${search}%`) }, email: Not(In(excludedEmails)) },
       ];
     }
 
