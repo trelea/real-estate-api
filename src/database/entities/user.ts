@@ -72,4 +72,10 @@ export class User extends GlobalEntityUUID {
    */
   @OneToOne(() => UserCarousel, (carousel) => carousel.user)
   carousel?: UserCarousel;
+
+  /**
+   * hidden
+   */
+  @Column({ type: 'boolean', nullable: true, default: false })
+  hidden: boolean;
 }
