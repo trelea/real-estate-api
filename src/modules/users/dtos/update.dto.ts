@@ -5,6 +5,7 @@ import {
   IsPhoneNumber,
   IsString,
   IsUrl,
+  MinLength,
 } from 'class-validator';
 import { UserRole } from 'src/database/entities';
 import { IsMdPhoneNumber } from 'src/shared/decorators';
@@ -13,6 +14,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsEmail()
   email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password?: string;
 
   @IsOptional()
   @IsEnum(UserRole)

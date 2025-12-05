@@ -80,13 +80,17 @@ export class UsersService {
     return await this.entityManager.transaction(async (transaction) => {
       if (!_user) return;
 
-      const { role, email, ..._profile } = _user;
+      const { role, email, password, ..._profile } = _user;
 
-      await transaction.update(
-        User,
-        { id: user_id },
-        role || email ? { role, email } : {},
-      );
+      const userUpdate: Partial<User> = {};
+      if (role) userUpdate.role = role;
+      if (email) userUpdate.email = email;
+      if (password)
+        userUpdate.password = await this.cryptoService.encrypt(password);
+
+      if (Object.keys(userUpdate).length > 0) {
+        await transaction.update(User, { id: user_id }, userUpdate);
+      }
 
       /**
        * Try to upload file to S3

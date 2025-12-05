@@ -19,6 +19,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:admin": "export NODE_ENV=prod && ts-node ./src/scripts/admin.ts",
+    "admin:update-password": "export NODE_ENV=prod && ts-node ./src/scripts/admin-update-password.ts",
     "seed:users": "ts-node ./src/scripts/generate-users.ts",
     "seed:data": "ts-node ./src/scripts/seed-data.ts",
     "typeorm": "npx ts-node ./node_modules/.bin/typeorm",
