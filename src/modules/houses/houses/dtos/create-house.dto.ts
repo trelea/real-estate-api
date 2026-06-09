@@ -24,16 +24,16 @@ export class CreateHouseDto {
   user: string;
 
   @IsString()
-  @IsNotEmpty()
-  desc_ro: string;
+  @IsOptional()
+  desc_ro?: string;
 
   @IsString()
-  @IsNotEmpty()
-  desc_ru: string;
+  @IsOptional()
+  desc_ru?: string;
 
   @IsString()
-  @IsNotEmpty()
-  desc_en: string;
+  @IsOptional()
+  desc_en?: string;
 
   @IsNumber()
   @IsNotEmpty()
