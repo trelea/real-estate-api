@@ -36,6 +36,9 @@ export class User extends GlobalEntityUUID {
   })
   priority: UserPriority;
 
+  @Column({ type: 'boolean', default: false })
+  hidden: boolean;
+
   /**
    * relation to profile 1 <-> 1
    */

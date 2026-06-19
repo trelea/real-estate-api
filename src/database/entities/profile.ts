@@ -28,6 +28,9 @@ export class Profile extends GlobalEntityUUID {
   @Column({ type: 'varchar', nullable: true })
   viber: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  job_function: string;
+
   /**
    * relation to user 1 <-> 1
    */
