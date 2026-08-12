@@ -9,6 +9,9 @@ import * as fs from 'fs';
 
 @Injectable()
 export class ImageProcessingService {
+  /** Longest edge kept for stored listing media. */
+  private static readonly MAX_EDGE = 2000;
+
   private readonly logger = new Logger(ImageProcessingService.name);
   private watermarkPath: string;
 
@@ -58,8 +61,31 @@ export class ImageProcessingService {
         throw new Error(`Watermark file not found at: ${this.watermarkPath}`);
       }
 
-      // Get original image metadata
-      const image = sharp(imageBuffer);
+      // Cap the working resolution before compositing. Listing photos come
+      // straight off phones and cameras; without this the original resolution
+      // is watermarked, stored and re-encoded at full size forever. 2000px is
+      // above the largest variant the site ever requests.
+      let workingBuffer = imageBuffer;
+      const probe = await sharp(imageBuffer).metadata();
+      if (
+        (probe.width ?? 0) > ImageProcessingService.MAX_EDGE ||
+        (probe.height ?? 0) > ImageProcessingService.MAX_EDGE
+      ) {
+        workingBuffer = await sharp(imageBuffer)
+          .resize({
+            width: ImageProcessingService.MAX_EDGE,
+            height: ImageProcessingService.MAX_EDGE,
+            fit: 'inside',
+            withoutEnlargement: true,
+          })
+          .toBuffer();
+        this.logger.log(
+          `Downscaled ${probe.width}x${probe.height} -> max ${ImageProcessingService.MAX_EDGE}px edge`,
+        );
+      }
+
+      // Get working image metadata
+      const image = sharp(workingBuffer);
       const metadata = await image.metadata();
 
       this.logger.log(
@@ -118,7 +144,10 @@ export class ImageProcessingService {
           },
         ])
         .jpeg({
-          quality: 95, // High quality
+          // 95 roughly doubled the file size over 82 with no visible gain on
+          // photographic content, and every stored byte is paid again on each
+          // optimizer cache miss.
+          quality: 82,
           progressive: true,
           mozjpeg: true,
         })

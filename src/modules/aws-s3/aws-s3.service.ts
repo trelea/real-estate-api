@@ -8,6 +8,14 @@ import { ImageProcessingService } from 'src/services/image-processing';
 
 @Injectable()
 export class AwsS3Service {
+  /**
+   * Object keys are `randomUUID()-Date.now()-originalname`, so a given URL
+   * always resolves to the same bytes. Without this header S3 responds with no
+   * Cache-Control at all, which caps the Next.js image optimizer at a 60s
+   * `max-age` and makes Cloudflare treat every image as uncacheable.
+   */
+  private static readonly CACHE_CONTROL = 'public, max-age=31536000, immutable';
+
   private readonly logger = new Logger(AwsS3Service.name);
   private readonly s3: S3Client;
   private readonly bucket: string;
@@ -36,6 +44,7 @@ export class AwsS3Service {
       Body: file.buffer,
       Key,
       ContentType: file.mimetype,
+      CacheControl: AwsS3Service.CACHE_CONTROL,
       ACL: 'public-read',
       Metadata: { data: JSON.stringify(metadata) },
     });
@@ -121,6 +130,7 @@ export class AwsS3Service {
         Body: processedBuffer,
         Key,
         ContentType: contentType,
+        CacheControl: AwsS3Service.CACHE_CONTROL,
         ACL: 'public-read',
         Metadata: {
           data: JSON.stringify(metadata),
