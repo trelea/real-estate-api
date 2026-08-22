@@ -1,10 +1,11 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LocationSubcategory } from 'src/database/entities';
+import { Location, LocationSubcategory } from 'src/database/entities';
 import { MultilingualService } from 'src/services/multilingual';
 import { DeepPartial, Repository } from 'typeorm';
 import {
@@ -19,8 +20,31 @@ export class SubcategoriesService extends MultilingualService<LocationSubcategor
     @InjectRepository(LocationSubcategory)
     private readonly locationSubcategoriesRepository: Repository<LocationSubcategory>,
     private readonly locationCategoriesService: CategoriesService,
+
+    @InjectRepository(Location)
+    private readonly locationRepository: Repository<Location>,
   ) {
     super(locationSubcategoriesRepository);
+  }
+
+  /**
+   * location.locationSubcategoryId is ON DELETE SET NULL, so removing a
+   * subcategory that offerts still point at leaves them without a location.
+   * Refuse the delete instead of silently orphaning them.
+   */
+  async delete(id: number) {
+    await this.findById(id);
+
+    const locations = await this.locationRepository.countBy({
+      location_subcategory: { id },
+    });
+
+    if (locations)
+      throw new ConflictException(
+        `Subcategory is still used by ${locations} offert location(s). Move them first.`,
+      );
+
+    return await super.delete(id);
   }
 
   /**

@@ -4,10 +4,20 @@ import { CategoriesService } from './categories/categories.service';
 import { SubcategoriesController } from './subcategories/subcategories.controller';
 import { SubcategoriesService } from './subcategories/subcategories.service';
 import { DatabaseModule } from 'src/database';
-import { LocationCategory, LocationSubcategory } from 'src/database/entities';
+import {
+  Location,
+  LocationCategory,
+  LocationSubcategory,
+} from 'src/database/entities';
 
 @Module({
-  imports: [DatabaseModule.forFeature([LocationCategory, LocationSubcategory])],
+  imports: [
+    DatabaseModule.forFeature([
+      LocationCategory,
+      LocationSubcategory,
+      Location,
+    ]),
+  ],
   controllers: [CategoriesController, SubcategoriesController],
   providers: [CategoriesService, SubcategoriesService],
 })
