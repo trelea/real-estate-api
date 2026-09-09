@@ -28,8 +28,12 @@ export class CommercialsController {
   constructor(private readonly commercialsService: CommercialsService) {}
 
   @Get('admin')
-  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return await this.commercialsService.findAll(page, limit);
+  async findAll(
+    @Req() req: Request,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return await this.commercialsService.findAll(page, limit, req);
   }
 
   @Get(':id')
@@ -47,30 +51,33 @@ export class CommercialsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() commercial: UpdateCommercialDto,
+    @Req() req: Request,
   ) {
     console.log(commercial);
-    return await this.commercialsService.update(id, commercial);
+    return await this.commercialsService.update(id, commercial, req);
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return await this.commercialsService.delete(id);
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.commercialsService.delete(id, req);
   }
 
   @Patch(':id/upload-media')
   @UseInterceptors(FileInterceptor('media'))
   async uploadMedia(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
     @UploadedFile(ThumbnailValidationPipe) media?: Express.Multer.File,
   ) {
-    return await this.commercialsService.uploadMedia(id, media);
+    return await this.commercialsService.uploadMedia(id, media, req);
   }
 
   @Patch(':id/remove-media/:media_id')
   async removeMedia(
     @Param('id', ParseIntPipe) id: number,
     @Param('media_id') media_id: string,
+    @Req() req: Request,
   ) {
-    return await this.commercialsService.removeMedia(id, media_id);
+    return await this.commercialsService.removeMedia(id, media_id, req);
   }
 }

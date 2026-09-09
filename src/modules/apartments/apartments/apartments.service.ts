@@ -1,5 +1,6 @@
 import {
   Injectable,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -49,13 +50,40 @@ export class ApartmentsService {
     private readonly awsS3Service: AwsS3Service,
   ) {}
 
-  async findAll(page?: number, limit?: number) {
+  /**
+   * An agent may only act on the offerts assigned to them; admins act on all.
+   * Throws 404 when the offert does not exist so callers cannot probe ids.
+   */
+  private async assertCanMutate(id: number, req?: Request) {
+    const apartment = await this.apartmentsRepository.findOne({
+      where: { id },
+      relations: { user: true },
+    });
+    if (!apartment) throw new NotFoundException('Apartment not found');
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
+    const isOwner = !!req?.user?.id && apartment.user?.id === req.user.id;
+    if (!isAdmin && !isOwner)
+      throw new ForbiddenException('You can only manage your own offerts');
+    return apartment;
+  }
+
+  async findAll(page?: number, limit?: number, req?: Request) {
     if (!page || page < 1) page = 1;
     if (!limit || limit < 1) limit = 20;
 
     const skip = (page - 1) * limit;
+    /**
+     * An agent only ever lists the offerts assigned to them; admins list all.
+     * Fail closed: without an identified caller we scope to nothing rather
+     * than falling back to an unfiltered query.
+     */
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
+    if (!isAdmin && !req?.user?.id)
+      throw new ForbiddenException('You can only list your own offerts');
+    const scoped = isAdmin ? {} : { user: { id: req!.user!.id } };
 
     const [data, total] = await this.apartmentsRepository.findAndCount({
+      where: scoped,
       relations: {
         location: true,
         user: {
@@ -180,7 +208,8 @@ export class ApartmentsService {
     }
   }
 
-  async update(id: number, updateData: UpdateApartmentDto) {
+  async update(id: number, updateData: UpdateApartmentDto, req?: Request) {
+    await this.assertCanMutate(id, req);
     const queryRunner = this.entityManager.connection.createQueryRunner();
 
     try {
@@ -320,7 +349,8 @@ export class ApartmentsService {
     }
   }
 
-  async uploadMedia(id: number, media?: Express.Multer.File) {
+  async uploadMedia(id: number, media?: Express.Multer.File, req?: Request) {
+    await this.assertCanMutate(id, req);
     try {
       let url: string | undefined = undefined;
       if (media) {
@@ -342,7 +372,8 @@ export class ApartmentsService {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number, req?: Request) {
+    await this.assertCanMutate(id, req);
     try {
       const apartment = await this.apartmentsRepository.findOne({
         where: { id },
@@ -359,7 +390,8 @@ export class ApartmentsService {
     }
   }
 
-  async removeMedia(id: number, media_id: string) {
+  async removeMedia(id: number, media_id: string, req?: Request) {
+    await this.assertCanMutate(id, req);
     try {
       const media = await this.mediasRepository.findOne({
         where: { id: media_id, apartment: { id } },

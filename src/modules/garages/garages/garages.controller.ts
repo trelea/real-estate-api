@@ -28,8 +28,12 @@ export class GaragesController {
   constructor(private readonly garagesService: GaragesService) {}
 
   @Get('admin')
-  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return await this.garagesService.findAll(page, limit);
+  async findAll(
+    @Req() req: Request,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return await this.garagesService.findAll(page, limit, req);
   }
 
   @Get(':id')
@@ -47,29 +51,32 @@ export class GaragesController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() garage: UpdateGarageDto,
+    @Req() req: Request,
   ) {
-    return await this.garagesService.update(id, garage);
+    return await this.garagesService.update(id, garage, req);
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return await this.garagesService.delete(id);
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.garagesService.delete(id, req);
   }
 
   @Patch(':id/upload-media')
   @UseInterceptors(FileInterceptor('media'))
   async uploadMedia(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
     @UploadedFile(ThumbnailValidationPipe) media?: Express.Multer.File,
   ) {
-    return await this.garagesService.uploadMedia(id, media);
+    return await this.garagesService.uploadMedia(id, media, req);
   }
 
   @Patch(':id/remove-media/:media_id')
   async removeMedia(
     @Param('id', ParseIntPipe) id: number,
     @Param('media_id') media_id: string,
+    @Req() req: Request,
   ) {
-    return await this.garagesService.removeMedia(id, media_id);
+    return await this.garagesService.removeMedia(id, media_id, req);
   }
 }

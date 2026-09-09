@@ -28,8 +28,12 @@ export class TerrainsController {
   constructor(private readonly terrainsService: TerrainsService) {}
 
   @Get('admin')
-  async findAll(@Query('page') page?: number, @Query('limit') limit?: number) {
-    return await this.terrainsService.findAll(page, limit);
+  async findAll(
+    @Req() req: Request,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return await this.terrainsService.findAll(page, limit, req);
   }
 
   @Get(':id')
@@ -47,29 +51,32 @@ export class TerrainsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() terrain: UpdateTerrainDto,
+    @Req() req: Request,
   ) {
-    return await this.terrainsService.update(id, terrain);
+    return await this.terrainsService.update(id, terrain, req);
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    return await this.terrainsService.delete(id);
+  async delete(@Param('id', ParseIntPipe) id: number, @Req() req: Request) {
+    return await this.terrainsService.delete(id, req);
   }
 
   @Patch(':id/upload-media')
   @UseInterceptors(FileInterceptor('media'))
   async uploadMedia(
     @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request,
     @UploadedFile(ThumbnailValidationPipe) media?: Express.Multer.File,
   ) {
-    return await this.terrainsService.uploadMedia(id, media);
+    return await this.terrainsService.uploadMedia(id, media, req);
   }
 
   @Patch(':id/remove-media/:media_id')
   async removeMedia(
     @Param('id', ParseIntPipe) id: number,
     @Param('media_id') media_id: string,
+    @Req() req: Request,
   ) {
-    return await this.terrainsService.removeMedia(id, media_id);
+    return await this.terrainsService.removeMedia(id, media_id, req);
   }
 }
