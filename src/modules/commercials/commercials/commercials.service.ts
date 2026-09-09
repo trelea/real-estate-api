@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Commercial } from 'src/database/entities/commercial';
+import { Commercial, CommercialStatus } from 'src/database/entities/commercial';
 import { Location, User, Media } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateCommercialDto } from './dtos/create-commercial.dto';
@@ -41,10 +41,16 @@ export class CommercialsService {
     };
   }
 
-  async findOne(id: number, req?: Request) {
+  async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const commercial = await this.commercialsRepository.findOne({
-        where: { id },
+        where: {
+          id,
+          // anonymous callers only ever see published offerts
+          ...(includePrivate || req?.user
+            ? {}
+            : { status: CommercialStatus.PUBLIC }),
+        },
         relations: {
           location: { location_category: true, location_subcategory: true },
           user: { profile: true },
@@ -63,6 +69,8 @@ export class CommercialsService {
       return commercial;
     } catch (err) {
       console.error('Error in findOne:', err);
+      // a missing / non-public offert is a 404, not a server error
+      if (err instanceof NotFoundException) throw err;
       throw new InternalServerErrorException(err.message);
     }
   }
@@ -115,7 +123,7 @@ export class CommercialsService {
 
   async update(id: number, dto: UpdateCommercialDto) {
     try {
-      const commercial = await this.findOne(id);
+      const commercial = await this.findOne(id, undefined, true);
       return await this.entityManager.transaction(async (manager) => {
         // Update location if provided
         if (

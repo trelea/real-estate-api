@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   House,
+  HouseStatus,
   HouseFeature,
   HousingCondition,
   HousingStock,
@@ -76,10 +77,16 @@ export class HousesService {
     };
   }
 
-  async findOne(id: number, req?: Request) {
+  async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const house = await this.housesRepository.findOne({
-        where: { id },
+        where: {
+          id,
+          // anonymous callers only ever see published offerts
+          ...(includePrivate || req?.user
+            ? {}
+            : { status: HouseStatus.PUBLIC }),
+        },
         relations: {
           location: {
             location_category: true,
@@ -104,6 +111,8 @@ export class HousesService {
 
       return house;
     } catch (err) {
+      // a missing / non-public offert is a 404, not a server error
+      if (err instanceof NotFoundException) throw err;
       throw new InternalServerErrorException(err.message);
     }
   }
@@ -161,7 +170,7 @@ export class HousesService {
 
   async update(id: number, updateData: UpdateHouseDto) {
     try {
-      const house = await this.findOne(id);
+      const house = await this.findOne(id, undefined, true);
 
       return await this.entityManager.transaction(async (manager) => {
         // Update location if provided

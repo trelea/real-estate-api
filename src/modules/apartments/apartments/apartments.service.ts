@@ -7,6 +7,7 @@ import { CreateApartmentDto } from './dtos/create-apartment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   Apartment,
+  ApartmentStatus,
   ApartmentFeature,
   HousingCondition,
   HousingStock,
@@ -77,10 +78,16 @@ export class ApartmentsService {
     };
   }
 
-  async findOne(id: number, req?: Request) {
+  async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const apartment = await this.apartmentsRepository.findOne({
-        where: { id },
+        where: {
+          id,
+          // anonymous callers only ever see published offerts
+          ...(includePrivate || req?.user
+            ? {}
+            : { status: ApartmentStatus.PUBLIC }),
+        },
         relations: {
           location: {
             location_category: true,
@@ -106,6 +113,8 @@ export class ApartmentsService {
       return apartment;
     } catch (err) {
       console.error('Error in findOne:', err);
+      // a missing / non-public offert is a 404, not a server error
+      if (err instanceof NotFoundException) throw err;
       throw new InternalServerErrorException(err.message);
     }
   }

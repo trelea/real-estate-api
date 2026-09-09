@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Garage } from 'src/database/entities/garage';
+import { Garage, GarageStatus } from 'src/database/entities/garage';
 import { Location, Media } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateGarageDto } from './dtos/create-garage.dto';
@@ -41,9 +41,13 @@ export class GaragesService {
     };
   }
 
-  async findOne(id: number, req?: Request) {
+  async findOne(id: number, req?: Request, includePrivate = false) {
     const garage = await this.garagesRepository.findOne({
-      where: { id },
+      where: {
+        id,
+        // anonymous callers only ever see published offerts
+        ...(includePrivate || req?.user ? {} : { status: GarageStatus.PUBLIC }),
+      },
       relations: {
         location: { location_category: true, location_subcategory: true },
         user: { profile: true },
@@ -97,7 +101,7 @@ export class GaragesService {
 
   async update(id: number, dto: UpdateGarageDto) {
     try {
-      const garage = await this.findOne(id);
+      const garage = await this.findOne(id, undefined, true);
       return await this.entityManager.transaction(async (manager) => {
         // Update location if provided
         if (

@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Terrain } from 'src/database/entities/terrain';
+import { Terrain, TerrainStatus } from 'src/database/entities/terrain';
 import { Location, Media } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateTerrainDto } from './dtos/create-terrain.dto';
@@ -41,9 +41,15 @@ export class TerrainsService {
     };
   }
 
-  async findOne(id: number, req?: Request) {
+  async findOne(id: number, req?: Request, includePrivate = false) {
     const terrain = await this.terrainsRepository.findOne({
-      where: { id },
+      where: {
+        id,
+        // anonymous callers only ever see published offerts
+        ...(includePrivate || req?.user
+          ? {}
+          : { status: TerrainStatus.PUBLIC }),
+      },
       relations: {
         location: { location_category: true, location_subcategory: true },
         user: { profile: true },
@@ -100,7 +106,7 @@ export class TerrainsService {
 
   async update(id: number, dto: UpdateTerrainDto) {
     try {
-      const terrain = await this.findOne(id);
+      const terrain = await this.findOne(id, undefined, true);
       return await this.entityManager.transaction(async (manager) => {
         // Update location if provided
         if (
