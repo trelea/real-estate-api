@@ -6,9 +6,16 @@ import { Apartment } from 'src/database/entities/apartment';
 import { House } from 'src/database/entities/house';
 import { Commercial } from 'src/database/entities/commercial';
 import { Terrain } from 'src/database/entities/terrain';
+import { Garage } from 'src/database/entities/garage';
 
 @Module({
-  imports: [DatabaseModule.forFeature([Apartment, House, Commercial, Terrain])],
+  imports: [DatabaseModule.forFeature([
+      Apartment,
+      House,
+      Commercial,
+      Terrain,
+      Garage,
+    ])],
   controllers: [OffertsController],
   providers: [OffertsService],
 })

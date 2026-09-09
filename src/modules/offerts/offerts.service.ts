@@ -4,6 +4,7 @@ import { Apartment, ApartmentStatus } from 'src/database/entities/apartment';
 import { Commercial, CommercialStatus } from 'src/database/entities/commercial';
 import { House, HouseStatus } from 'src/database/entities/house';
 import { Terrain, TerrainStatus } from 'src/database/entities/terrain';
+import { Garage, GarageStatus } from 'src/database/entities/garage';
 import {
   FindOptionsWhere,
   In,
@@ -23,6 +24,8 @@ export class OffertsService {
     private commercialRepository: Repository<Commercial>,
     @InjectRepository(Terrain)
     private terrainRepository: Repository<Terrain>,
+    @InjectRepository(Garage)
+    private garageRepository: Repository<Garage>,
   ) {}
 
   async getHotOfferts(limit: number) {
@@ -76,11 +79,23 @@ export class OffertsService {
       },
     });
 
+    const garages = await this.garageRepository.find({
+      where: {
+        status: GarageStatus.PUBLIC,
+        hot: true,
+      },
+      relations: {
+        location: true,
+        media: true,
+      },
+    });
+
     const offerts = [
       ...apartments.map((_) => ({ ..._, type: 'apartments' })),
       ...houses.map((_) => ({ ..._, type: 'houses' })),
       ...commercials.map((_) => ({ ..._, type: 'commercials' })),
       ...terrains.map((_) => ({ ..._, type: 'terrains' })),
+      ...garages.map((_) => ({ ..._, type: 'garages' })),
     ];
 
     return offerts.sort(() => Math.random() - 0.5).slice(0, limit);
@@ -554,6 +569,99 @@ export class OffertsService {
       await this.terrainRepository.find({
         where: {
           status: TerrainStatus.PUBLIC,
+          hot: true,
+        },
+        relations: {
+          location: true,
+          media: true,
+        },
+      })
+    )
+      .sort(() => Math.random() - 0.5)
+      .slice(0, limit);
+  }
+
+  async getGaragesOfferts(
+    limit: number,
+    page: number,
+    sort: string,
+    filter: any,
+  ) {
+    if (!limit) limit = 10;
+    if (!page) page = 1;
+
+    let order: Record<string, 'ASC' | 'DESC'> = {
+      created_at: 'DESC',
+    };
+
+    if (sort?.includes('price'))
+      order = { price: sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC' };
+
+    if (sort?.includes('area'))
+      order = { area: sort.split('_')[1] === 'asc' ? 'ASC' : 'DESC' };
+
+    const where: FindOptionsWhere<Garage> = {
+      status: GarageStatus.PUBLIC,
+    };
+
+    if (filter.offert && filter.offert.length > 0)
+      where.offert = In(filter.offert as string[]);
+
+    if (filter.location_category && filter.location_category.length > 0)
+      where.location = {
+        location_category: {
+          id: In(filter.location_category),
+        },
+      };
+
+    if (filter.location_subcategory && filter.location_subcategory.length > 0)
+      where.location = {
+        location_subcategory: {
+          id: In(filter.location_subcategory),
+        },
+      };
+
+    if (filter.price_from && filter.price_from > 0)
+      where.price = MoreThanOrEqual(filter.price_from);
+
+    if (filter.price_to && filter.price_to > 0)
+      where.price = LessThanOrEqual(filter.price_to);
+
+    if (filter.surface_from && filter.surface_from > 0)
+      where.area = MoreThanOrEqual(filter.surface_from);
+
+    if (filter.surface_to && filter.surface_to > 0)
+      where.area = LessThanOrEqual(filter.surface_to);
+
+    if (filter.features && filter.features.length > 0)
+      where.features = {
+        id: In(filter.features),
+      };
+
+    const [data, total] = await this.garageRepository.findAndCount({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { media: { created_at: 'ASC' }, ...order },
+      relations: {
+        location: true,
+        media: true,
+      },
+    });
+
+    return {
+      data,
+      meta: { page, limit, total, last_page: Math.ceil(total / limit) },
+    };
+  }
+
+  async getGaragesHotOfferts(limit: number) {
+    if (!limit) limit = 10;
+
+    return (
+      await this.garageRepository.find({
+        where: {
+          status: GarageStatus.PUBLIC,
           hot: true,
         },
         relations: {

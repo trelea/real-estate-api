@@ -6,6 +6,7 @@ import { UserCarousel } from './user-carousel';
 import { House } from './house';
 import { Commercial } from './commercial';
 import { Terrain } from './terrain';
+import { Garage } from './garage';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -66,6 +67,12 @@ export class User extends GlobalEntityUUID {
    */
   @OneToMany(() => Terrain, (terrain) => terrain.user)
   terrains: Terrain[];
+
+  /**
+   * garages one -> many
+   */
+  @OneToMany(() => Garage, (garage) => garage.user)
+  garages: Garage[];
 
   /**
    * carousel

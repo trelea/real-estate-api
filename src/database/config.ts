@@ -27,6 +27,8 @@ import {
   UserCarousel,
   Commercial,
   Terrain,
+  Garage,
+  GarageFeature,
 } from './entities';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
@@ -85,6 +87,11 @@ export const dataSourceOptions = {
     TerrainFeature,
     TerrainUsability,
     Terrain,
+    /**
+     * garages
+     */
+    GarageFeature,
+    Garage,
     /**
      * aboutus, terms and conditions, policy
      */

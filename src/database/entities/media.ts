@@ -4,6 +4,7 @@ import { Apartment } from './apartment';
 import { House } from './house';
 import { Commercial } from './commercial';
 import { Terrain } from './terrain';
+import { Garage } from './garage';
 
 @Entity()
 export class Media extends GlobalEntityUUID {
@@ -32,4 +33,9 @@ export class Media extends GlobalEntityUUID {
     onDelete: 'CASCADE',
   })
   terrain: Terrain;
+
+  @ManyToOne(() => Garage, (garage) => garage.media, {
+    onDelete: 'CASCADE',
+  })
+  garage: Garage;
 }

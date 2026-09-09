@@ -61,3 +61,9 @@ export * from './user-carousel';
 
 export * from './commercial';
 export * from './terrain';
+
+/**
+ * garages
+ */
+export * from './garage-feature';
+export * from './garage';

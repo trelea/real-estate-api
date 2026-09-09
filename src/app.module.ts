@@ -18,6 +18,8 @@ import { CommercialsModule } from './modules/commercials/commercials';
 import { TerrainsUsabilitiesModule } from './modules/terrains/terrains-usabilities';
 import { TerrainsFeaturesModule } from './modules/terrains/terrains-features';
 import { TerrainsModule } from './modules/terrains/terrains';
+import { GaragesFeaturesModule } from './modules/garages/garages-features';
+import { GaragesModule } from './modules/garages/garages';
 import { TermsAndConditionsModule } from './modules/terms-and-conditions';
 import { AboutUsModule } from './modules/about-us';
 import { PrivacyPolicyModule } from './modules/privacy-policy';
@@ -59,6 +61,11 @@ import { ProxyMediaModule } from './modules/proxy-media/proxy-media.module';
     TerrainsUsabilitiesModule,
     TerrainsFeaturesModule,
     TerrainsModule,
+    /**
+     * Garages
+     */
+    GaragesFeaturesModule,
+    GaragesModule,
     /**
      * about us, policy, terms and conditions
      */

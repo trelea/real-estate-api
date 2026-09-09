@@ -6,6 +6,7 @@ import { Apartment } from './apartment';
 import { House } from './house';
 import { Commercial } from './commercial';
 import { Terrain } from './terrain';
+import { Garage } from './garage';
 
 @Entity()
 export class Location extends GlobalEntityUUID {
@@ -52,4 +53,9 @@ export class Location extends GlobalEntityUUID {
     onDelete: 'CASCADE',
   })
   terrain: Terrain;
+
+  @OneToOne(() => Garage, (garage) => garage.location, {
+    onDelete: 'CASCADE',
+  })
+  garage: Garage;
 }

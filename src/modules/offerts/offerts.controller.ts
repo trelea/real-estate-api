@@ -95,4 +95,26 @@ export class OffertsController {
   ) {
     return this.offertsService.getTerrainsHotOfferts(limit);
   }
+
+  @Get('garages')
+  async getGaragesOfferts(
+    @Query('limit', ParseIntPipeOptional) limit: number,
+    @Query('page', ParseIntPipeOptional) page: number,
+    @Query('sort') sort: string,
+    @Query('filter') filter?: string,
+  ) {
+    return this.offertsService.getGaragesOfferts(
+      limit,
+      page,
+      sort,
+      filter ? JSON.parse(filter) : {},
+    );
+  }
+
+  @Get('garages/hot')
+  async getGaragesHotOfferts(
+    @Query('limit', ParseIntPipeOptional) limit: number,
+  ) {
+    return this.offertsService.getGaragesHotOfferts(limit);
+  }
 }
