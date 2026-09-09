@@ -15,6 +15,7 @@ import {
   LocationSubcategory,
   Media,
   User,
+  UserRole,
 } from 'src/database/entities';
 import { DeepPartial, EntityManager, In, Repository } from 'typeorm';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
@@ -80,13 +81,7 @@ export class HousesService {
   async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const house = await this.housesRepository.findOne({
-        where: {
-          id,
-          // anonymous callers only ever see published offerts
-          ...(includePrivate || req?.user
-            ? {}
-            : { status: HouseStatus.PUBLIC }),
-        },
+        where: { id },
         relations: {
           location: {
             location_category: true,
@@ -105,6 +100,20 @@ export class HousesService {
       if (!house) {
         throw new NotFoundException('House not found');
       }
+
+      /**
+       * PRIVATE offerts are visible only to an admin or the assigned agent.
+       * Anyone else gets the same 404 as a non-existent id.
+       */
+      const isAdmin = req?.user?.role === UserRole.ADMIN;
+      const isOwner = !!req?.user?.id && house.user?.id === req.user.id;
+      if (
+        !includePrivate &&
+        house.status !== HouseStatus.PUBLIC &&
+        !isAdmin &&
+        !isOwner
+      )
+        throw new NotFoundException('House not found');
 
       // Skip views increment for now to prevent performance issues during updates
       // TODO: Implement this with a separate incrementViews method

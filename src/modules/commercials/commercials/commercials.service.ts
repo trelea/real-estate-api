@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commercial, CommercialStatus } from 'src/database/entities/commercial';
-import { Location, User, Media } from 'src/database/entities';
+import { Location, User, Media, UserRole } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateCommercialDto } from './dtos/create-commercial.dto';
 import { UpdateCommercialDto } from './dtos/update-commercial.dto';
@@ -44,13 +44,7 @@ export class CommercialsService {
   async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const commercial = await this.commercialsRepository.findOne({
-        where: {
-          id,
-          // anonymous callers only ever see published offerts
-          ...(includePrivate || req?.user
-            ? {}
-            : { status: CommercialStatus.PUBLIC }),
-        },
+        where: { id },
         relations: {
           location: { location_category: true, location_subcategory: true },
           user: { profile: true },
@@ -62,6 +56,20 @@ export class CommercialsService {
         },
       });
       if (!commercial) throw new NotFoundException('Commercial not found');
+
+      /**
+       * PRIVATE offerts are visible only to an admin or the assigned agent.
+       * Anyone else gets the same 404 as a non-existent id.
+       */
+      const isAdmin = req?.user?.role === UserRole.ADMIN;
+      const isOwner = !!req?.user?.id && commercial.user?.id === req.user.id;
+      if (
+        !includePrivate &&
+        commercial.status !== CommercialStatus.PUBLIC &&
+        !isAdmin &&
+        !isOwner
+      )
+        throw new NotFoundException('Commercial not found');
 
       // Skip views increment for now to prevent performance issues during updates
       // TODO: Implement this with a separate incrementViews method

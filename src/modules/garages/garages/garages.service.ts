@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Garage, GarageStatus } from 'src/database/entities/garage';
-import { Location, Media } from 'src/database/entities';
+import { Location, Media, UserRole } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateGarageDto } from './dtos/create-garage.dto';
 import { UpdateGarageDto } from './dtos/update-garage.dto';
@@ -43,11 +43,7 @@ export class GaragesService {
 
   async findOne(id: number, req?: Request, includePrivate = false) {
     const garage = await this.garagesRepository.findOne({
-      where: {
-        id,
-        // anonymous callers only ever see published offerts
-        ...(includePrivate || req?.user ? {} : { status: GarageStatus.PUBLIC }),
-      },
+      where: { id },
       relations: {
         location: { location_category: true, location_subcategory: true },
         user: { profile: true },
@@ -56,6 +52,20 @@ export class GaragesService {
       },
     });
     if (!garage) throw new NotFoundException('Garage not found');
+
+    /**
+     * PRIVATE offerts are visible only to an admin or the assigned agent.
+     * Anyone else gets the same 404 as a non-existent id.
+     */
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
+    const isOwner = !!req?.user?.id && garage.user?.id === req.user.id;
+    if (
+      !includePrivate &&
+      garage.status !== GarageStatus.PUBLIC &&
+      !isAdmin &&
+      !isOwner
+    )
+      throw new NotFoundException('Garage not found');
 
     // Skip views increment for now to prevent performance issues during updates
     // TODO: Implement this with a separate incrementViews method

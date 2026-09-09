@@ -16,6 +16,7 @@ import {
   LocationSubcategory,
   Media,
   User,
+  UserRole,
 } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository, In } from 'typeorm';
 import { AwsS3Service } from 'src/modules/aws-s3/aws-s3.service';
@@ -81,13 +82,7 @@ export class ApartmentsService {
   async findOne(id: number, req?: Request, includePrivate = false) {
     try {
       const apartment = await this.apartmentsRepository.findOne({
-        where: {
-          id,
-          // anonymous callers only ever see published offerts
-          ...(includePrivate || req?.user
-            ? {}
-            : { status: ApartmentStatus.PUBLIC }),
-        },
+        where: { id },
         relations: {
           location: {
             location_category: true,
@@ -106,6 +101,20 @@ export class ApartmentsService {
       if (!apartment) {
         throw new NotFoundException('Apartment not found');
       }
+
+      /**
+       * PRIVATE offerts are visible only to an admin or the assigned agent.
+       * Anyone else gets the same 404 as a non-existent id.
+       */
+      const isAdmin = req?.user?.role === UserRole.ADMIN;
+      const isOwner = !!req?.user?.id && apartment.user?.id === req.user.id;
+      if (
+        !includePrivate &&
+        apartment.status !== ApartmentStatus.PUBLIC &&
+        !isAdmin &&
+        !isOwner
+      )
+        throw new NotFoundException('Apartment not found');
 
       // Skip views increment for now to prevent hanging
       // TODO: Implement this with a queue or background job

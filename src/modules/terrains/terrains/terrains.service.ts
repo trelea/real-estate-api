@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Terrain, TerrainStatus } from 'src/database/entities/terrain';
-import { Location, Media } from 'src/database/entities';
+import { Location, Media, UserRole } from 'src/database/entities';
 import { DeepPartial, EntityManager, Repository } from 'typeorm';
 import { CreateTerrainDto } from './dtos/create-terrain.dto';
 import { UpdateTerrainDto } from './dtos/update-terrain.dto';
@@ -43,13 +43,7 @@ export class TerrainsService {
 
   async findOne(id: number, req?: Request, includePrivate = false) {
     const terrain = await this.terrainsRepository.findOne({
-      where: {
-        id,
-        // anonymous callers only ever see published offerts
-        ...(includePrivate || req?.user
-          ? {}
-          : { status: TerrainStatus.PUBLIC }),
-      },
+      where: { id },
       relations: {
         location: { location_category: true, location_subcategory: true },
         user: { profile: true },
@@ -59,6 +53,20 @@ export class TerrainsService {
       },
     });
     if (!terrain) throw new NotFoundException('Terrain not found');
+
+    /**
+     * PRIVATE offerts are visible only to an admin or the assigned agent.
+     * Anyone else gets the same 404 as a non-existent id.
+     */
+    const isAdmin = req?.user?.role === UserRole.ADMIN;
+    const isOwner = !!req?.user?.id && terrain.user?.id === req.user.id;
+    if (
+      !includePrivate &&
+      terrain.status !== TerrainStatus.PUBLIC &&
+      !isAdmin &&
+      !isOwner
+    )
+      throw new NotFoundException('Terrain not found');
 
     // Skip views increment for now to prevent performance issues during updates
     // TODO: Implement this with a separate incrementViews method
